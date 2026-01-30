@@ -86,7 +86,11 @@ SESSION_COOKIE_HTTPONLY = True
 # Si tu es en production (HTTPS), active ceci :
 # CSRF_COOKIE_SECURE = True
 # SESSION_COOKIE_SECURE = True
-
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer", # Pour le développement local
+    },
+}
 
 SESSION_COOKIE_SAMESITE = 'Lax'
 
@@ -113,15 +117,15 @@ PASSWORD_RESET_TIMEOUT = 7200
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+import dj_database_url
+
+
+# Remplace l'ancien bloc DATABASES par celui-ci :
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'LOCAL_GHOST',            
-        'USER': 'postgres',             
-        'PASSWORD': 'tomfeu83', 
-        'HOST': '127.0.0.1',            
-        'PORT': '5432',                 
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600
+    )
 }
 
 

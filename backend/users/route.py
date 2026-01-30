@@ -127,7 +127,10 @@ async def login(request, data: LoginIn):
         settings.SECRET_KEY,
         algorithm='HS256'
     )
-    response = Response({'success': 'Connexion reussie'}, status=200)
+    response = Response({
+        'user': user,
+        'success': 'Connexion reussie'
+        }, status=200)
     
     response.set_cookie(
         key="access_token",
@@ -148,6 +151,59 @@ async def login(request, data: LoginIn):
     return response
     
 
+@route.post('logout/')
+async def Logout(request):
+    response = Response({'message':'déconnexion'})
+    await response.delete_cookie('access_token')
+    await response.delete_cookie('refresh_token')
+    return response
+
+
+@route.post('refresh/', response={201: dict, 401:dict})
+async def Refresh_token(request, data):
+    refresh_token = request.COOKIES.get('refresh_token')
+    if not refresh_token:
+        return 401, {'erreur':'token introuvable'}
+    
+    decode = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=['HS256'])
+    user = await User.objects.aget(id=decode['user_id'])
+    access_token = jwt.encode(
+        {
+            'user_id': user.id,
+            'exp': timezone.now() + timedelta(days=1),
+            'iat': timezone.now()
+        },
+        settings.SECRET_KEY, 
+        algorithms=['HS256']
+    )
+    refresh_token = jwt.encode(
+        {
+            'user_id': user.id,
+            'exp': timezone.now() + timedelta(days=7),
+            'iat': timezone.now()
+        },
+        settings.SECRET_KEY, 
+        algorithms=['HS256']
+    )
+    response = Response({'success':'refresh créé'})
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=True,
+        samesite='Lax',
+        max_age=3600 * 24
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        samesite='Lax',
+        max_age=3600 * 24
+    )
+    return response
 
 
 api = NinjaAPI()

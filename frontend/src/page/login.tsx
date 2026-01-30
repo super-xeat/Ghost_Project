@@ -1,42 +1,16 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { Typography, Box } from "@mui/material";
 
-interface LoginResponse {
-    success?: string;
-    error?: string;
+interface Login {
+    email: string,
+    password: string
 }
 
 export default function Login() {
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
-    const handleLogin = async () => {
-        try {
-            const response = await fetch('http://localhost:8000/auth/login/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            
-                credentials: 'include', 
-                body: JSON.stringify({
-                    email: email,
-                    password: password
-                })
-            });
-
-            if (response.ok) {
-                const data: LoginResponse = await response.json();
-                console.log('Connexion réussie:', data);
-            
-            } 
-            if (response.status === 401) {
-                alert('erreur de mdp ou de mail')
-            }
-        } catch (error) {
-            console.error('Erreur réseau:', error);
-        }
-    }
 
     function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault(); 
@@ -47,6 +21,7 @@ export default function Login() {
     
     return (
         <div className="flex flex-col items-center p-4">
+            <Typography variant="h4">page de connexion</Typography>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <input 
                     onChange={(e) => setEmail(e.target.value)} 

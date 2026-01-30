@@ -13,7 +13,7 @@ RUN npm install
 COPY . /app/
 
 # Exposer le port de développement de Vite ou Create React App
-EXPOSE 3000
+EXPOSE 5173
 
 # Lancer l'application
-CMD ["npm", "start"]
+CMD ["npm", "dev", "run"]

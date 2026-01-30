@@ -5,9 +5,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=mytodo_db
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=LOCAL_GHOST
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=tomfeu83
     
 
   # 2. Le Backend (Django Ninja)
@@ -19,20 +19,19 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgres://user:password@db:5432/mytodo_db
+      - DATABASE_URL=postgres://postgres:tomfeu83@db:5432/LOCAL_GHOST
       - DEBUG=1
     depends_on:
-      db:
-        condition: service_healthy
-
+      - db
   # 3. Le Frontend (React)
   frontend:
     build: ./frontend
+    command: npm run dev -- --host
     volumes:
       - ./frontend:/app
       - /app/node_modules
     ports:
-      - "3000:3000"
+      - "3000:5173"
     environment:
       - CHOKIDAR_USEPOLLING=true # Utile pour le hot-reload sur certains OS
     stdin_open: true
