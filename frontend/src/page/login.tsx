@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Typography, Box } from "@mui/material";
+import { useAuth } from "../context/authcontext";
+
 
 interface Login {
     email: string,
@@ -11,12 +13,13 @@ export default function Login() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const {Login, Logout} = useAuth()
 
     function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault(); 
-        handleLogin();
+        Login(email, password);
         setEmail('');
-        setPassword('');
+        setPassword('');  
     }
     
     return (
@@ -42,9 +45,11 @@ export default function Login() {
                     type="submit" 
                     className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                 >
-                    Envoyer
+                    se connecter
                 </button>
+                
             </form>
+            <button onClick={Logout}>se deconnecter</button>
         </div>
     );
 }

@@ -30,7 +30,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-ASGI_APPLICATION = 'ghost_project.asgi.application'
+ASGI_APPLICATION = 'Setting.asgi.application'
 # Application definition
 
 INSTALLED_APPS = [
@@ -80,6 +80,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
 
 SESSION_COOKIE_HTTPONLY = True
 

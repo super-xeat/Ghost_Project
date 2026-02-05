@@ -1,4 +1,4 @@
-from ninja import Schema
+from ninja import Schema, ModelSchema
 from pydantic import field_validator, model_validator, EmailStr, HttpUrl
 from django.contrib.auth import get_user_model
 from typing import List, Optional
@@ -53,6 +53,10 @@ class LoginIn(Schema):
     email: str
     password: str
 
+class LoginOut(Schema):
+    username: str
+    success: str
+  
     
 
 

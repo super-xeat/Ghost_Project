@@ -1,7 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-from chat.models import Message, Discussion
-from shema import MessageIn, MessageOut
+from chat.models import Message, Discussion, Demande_Ami
+from chat.shema import MessageIn
 from django.contrib.auth import get_user_model
 from channels.layers import get_channel_layer
 from asgiref.sync import sync_to_async
@@ -29,10 +29,35 @@ class Messagerie(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         data_verif = MessageIn(**data)
 
+        #si l'utilisateur n'existe pas
         destinataire_id = data_verif.user.id
-        if not await User.objects.filter(id=destinataire_id).aexists():
-            await self.send(text_data=json.dumps({"error": "Utilisateur inconnu"}))
+        if not await sync_to_async(User.objects.filter(id=destinataire_id).exists())():
+            await self.send(text_data=json.dumps({"error": "Utilisateur inconnu"}))         
             return
+        
+        #si on est ami ou pas
+        deja_amis = await sync_to_async(self.user.liste_amis.filter(id=destinataire_id).exists())()
+
+        if not deja_amis:          
+            demande = await Demande_Ami.objects.acreate(
+                user=self.user,
+                destinataire=destinataire_id, 
+                accept=False
+            )
+            destinataire = f"user_{destinataire_id}"
+            await self.channel_layer.group_send(
+            destinataire,
+            {
+                "type": "notifier_demande_ami", 
+                "message": 'veux tu etre mon amigo',
+                "sender_id": self.user.id,
+                "demande_id": demande.id
+            }
+            )
+            await self.send(text_data=json.dumps({"success": "Demande envoyée"}))
+            return
+
+          
         
         destinataire = f"user_{destinataire_id}"
         await self.channel_layer.group_send(
@@ -41,12 +66,11 @@ class Messagerie(AsyncWebsocketConsumer):
                 "type":'chat_message',
                 "message": data_verif.text,
                 "sender": self.user.id
-
             }
         )
         user_destinataire = await User.objects.aget(id=destinataire_id)
 
-        discussion = await Discussion.objects.filter(user=self.user).filter(id=user_destinataire).afirst()
+        discussion = await Discussion.objects.filter(user=self.user).filter(user=user_destinataire).afirst()
         if discussion:
             await Message.objects.acreate(
                 discussion=discussion, 
@@ -68,6 +92,14 @@ class Messagerie(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             "message": event['message'],
             "sender": event['sender']
+        }))
+    
+    async def notifier_demande_ami(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "nouvelle_demande",
+            "message": event["message"],
+            "sender_id": event["sender_id"],
+            "demande_id": event["demande_id"]
         }))
         
         

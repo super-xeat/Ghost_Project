@@ -1,0 +1,30 @@
+import { useState } from "react";
+
+interface TokenHookResponse {
+    refresh: () => Promise<boolean>;
+    loading: boolean;
+}
+
+export default function useToken(): TokenHookResponse {
+    const [loading, setLoading] = useState(false);
+
+    async function refresh(): Promise<boolean> {
+        setLoading(true);
+        try {
+            const response = await fetch('http://localhost:8000/auth/refresh/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include' 
+            });
+
+            return response.ok
+        } catch (error) {
+            console.error("Erreur de rafraîchissement", error)
+            return false
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return { refresh, loading };
+}

@@ -7,7 +7,7 @@ class User(AbstractUser):
         ('En ligne', 'en ligne'),
         ('Hors ligne', 'hors ligne')
     ]
-
+ 
     DISCUSSION_CHOICE = [
         ('hote', 'hote'),
         ('invité', 'invite')
@@ -16,7 +16,7 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     username = models.CharField(max_length=20, unique=True)
 
-    statut = models.CharField(choices=STATUS_CHOICES)
+    statut = models.CharField(choices=STATUS_CHOICES, default='hors ligne')
 
-    status_discussion = models.CharField(choices=DISCUSSION_CHOICE)
+    status_discussion = models.CharField(choices=DISCUSSION_CHOICE, default='hote')
     liste_amis = models.ManyToManyField('self', blank=True)

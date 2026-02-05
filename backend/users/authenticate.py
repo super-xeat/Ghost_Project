@@ -1,12 +1,12 @@
 
-from ninja.security import HttpBearer
+from ninja.security import APIKeyCookie
 from django.conf import settings
 from django.contrib.auth import get_user_model
 import jwt
 
 User = get_user_model()
 
-class AuthCookies(HttpBearer):
+class AuthCookies(APIKeyCookie):
     async def __call__(self, request):
         cookie = request.COOKIES.get('access_token')
         try:

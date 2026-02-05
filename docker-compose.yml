@@ -13,7 +13,7 @@ services:
   # 2. Le Backend (Django Ninja)
   backend:
     build: ./backend
-    command: python manage.py runserver 0.0.0.0:8000
+    command: daphne -b 0.0.0.0 -p 8000 Setting.asgi:application
     volumes:
       - ./backend:/app
     ports:
@@ -21,6 +21,8 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:tomfeu83@db:5432/LOCAL_GHOST
       - DEBUG=1
+
+    
     depends_on:
       - db
   # 3. Le Frontend (React)
