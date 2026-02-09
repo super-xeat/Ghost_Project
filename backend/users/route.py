@@ -8,13 +8,14 @@ from datetime import timedelta
 from django.template.loader import render_to_string
 from django.contrib.auth.hashers import make_password
 from django.shortcuts import redirect
-from django.contrib.auth import authenticate
+from django.contrib.auth import aauthenticate
 from django.utils import timezone
 from datetime import timedelta
 from asgiref.sync import sync_to_async
 from ninja.responses import Response as NinjaResponse
 from typing import Optional
 from django.http import JsonResponse
+from users.authenticate import AuthCookies
 import jwt
 import os
 import httpx
@@ -22,15 +23,19 @@ import httpx
 
 User = get_user_model()
 
-route_auth = Router()
+auth_provider = AuthCookies()
+route_auth = Router(auth=auth_provider)
 
 key = os.getenv('BREVO_KEY')
 if key:
     print('brevokey', key)
-print('pas de clé')
+else:
+    print('pas de clé')
+    
 
-@route_auth.post('register/', response={201: dict, 400: dict})
+@route_auth.post('register/', response={201: dict, 400: dict}, auth=None)
 async def register(request, data: RegisterInSchema=Form(...), avatar: Optional[UploadedFile]=File(None)):
+    
     email_exist = await User.objects.filter(email=data.email).aexists()
     if email_exist:
         return 400, {'message': 'cet email existe deja'}
@@ -43,6 +48,7 @@ async def register(request, data: RegisterInSchema=Form(...), avatar: Optional[U
     if avatar:
         user.avatar = avatar
         await user.asave()
+
     token = jwt.encode(
                 {
                 'user_id': user.id,
@@ -52,7 +58,7 @@ async def register(request, data: RegisterInSchema=Form(...), avatar: Optional[U
                 algorithm='HS256'
             )
             
-    context = { 'confirmation_url':f'http://localhost:8000/auth/confirm_email/{token}/'}
+    context = { 'confirmation_url':f'http://localhost:8000/api/auth/confirm_email/{token}/'}
     message_html = await sync_to_async(render_to_string)('confirm_email.html', context)
 
     payload = {
@@ -80,14 +86,14 @@ async def register(request, data: RegisterInSchema=Form(...), avatar: Optional[U
     return 201, {'success':'Compte creer '}
 
 
-@route_auth.get('confirm_email/{token}/', response={200: dict, 400: dict})
+@route_auth.get('confirm_email/{token}/', response={200: dict, 400: dict}, auth=None)
 async def confirmation_mail(request, token: str):
     try:
         decode = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
         user = await User.objects.aget(id=decode['user_id'])
         user.is_active = True
         await user.asave()
-        return redirect('http://localhost:8000/auth/login/?status=success')
+        return redirect('http://localhost:5173/api/auth/login/')
 
     except jwt.ExpiredSignatureError:
         return 400, {"error": "Le lien a expire. Veuillez demander un nouvel email."}
@@ -95,21 +101,17 @@ async def confirmation_mail(request, token: str):
         return 400, {"error": "Lien invalide ou utilisateur introuvable."}
     
 
-@route_auth.post('login/', response={201: dict, 401: dict})
+@route_auth.post('login/', response={201: dict, 401: dict}, auth=None)
 async def login(request, data: LoginIn):
     try:
         user = await User.objects.aget(email=data.email)
         print("ceci est le user :", user)
     except User.DoesNotExist:
-        return 401, {'error': 'email ou mot de passe incorrect'}
+        return 401, {'erreur': 'email ou mot de passe incorrect'}
     
-    authentification = await sync_to_async(authenticate) (
-        request, 
-        username=user.username, 
-        password=data.password
-    )
+    authentification = await aauthenticate(request, username=user.username, password=data.password)
     if not authentification:
-        return 401, {'error': 'email ou mot de passe incorrect'}
+        return 401, {'error': 'erreur dauthentification'}
     
     access_token = jwt.encode(
         {

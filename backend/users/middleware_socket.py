@@ -26,18 +26,26 @@ class JWTauthcookieSocket(BaseMiddleware):
             cookie_parser.load(cookie)
 
             token = cookie_parser.get('access_token')
+            
             if token:
                 final = token.value
-                decode = jwt.decode(
-                    final,
-                    settings.SECRET_KEY,
-                    algorithms=['HS256']
-                )
+                data_brute = jwt.decode(final, options={"verify_signature": False})
+                
+                clean_key = str(settings.SECRET_KEY).strip()
+                decode = jwt.decode(final, clean_key, algorithms=['HS256'])
+                
                 scope['user'] = await recup_user(decode['user_id'])
+                print('scope user existant :', scope['user'])
             else:
                 scope['user'] = AnonymousUser()
+                print('scope user anonyme :', scope['user'])
 
-        except (jwt.ExpiredSignatureError, jwt.DecodeError, KeyError, Exception):
+        except (jwt.ExpiredSignatureError, jwt.DecodeError, KeyError):
             scope['user'] = AnonymousUser()
-        
+        except jwt.InvalidSignatureError:
+            print("STOP : La signature est invalide. La clé utilisée au login n'est pas celle du middleware.")
+        except Exception as e:
+            import traceback
+            print("CRASH LOG :")
+            print(traceback.format_exc())
         return await super().__call__(scope, receive, send)

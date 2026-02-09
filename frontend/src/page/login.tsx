@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { Typography, Box } from "@mui/material";
 import { useAuth } from "../context/authcontext";
-
+import { useNavigate } from "react-router-dom";
 
 interface Login {
     email: string,
@@ -11,19 +11,22 @@ interface Login {
 
 export default function Login() {
 
+    const navigate = useNavigate()
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const {Login, Logout} = useAuth()
+    const {Login, Logout, user} = useAuth()
 
     function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault(); 
-        Login(email, password);
+        Login(email, password)
         setEmail('');
         setPassword('');  
+        if (user?.Etat === 'en ligne') {
+        navigate('/Accueil')}
     }
     
     return (
-        <div className="flex flex-col items-center p-4">
+        <Box sx={{backgroundColor: '#ada4a4', height:'100%'}}>
             <Typography variant="h4">page de connexion</Typography>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <input 
@@ -48,8 +51,8 @@ export default function Login() {
                     se connecter
                 </button>
                 
-            </form>
+                </form>
             <button onClick={Logout}>se deconnecter</button>
-        </div>
+        </Box>
     );
 }

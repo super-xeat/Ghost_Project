@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 ASGI_APPLICATION = 'Setting.asgi.application'
 # Application definition
@@ -54,6 +54,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -84,7 +85,7 @@ CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
 
 SESSION_COOKIE_HTTPONLY = True
 
-# Si tu es en production (HTTPS), active ceci :
+# Si production (HTTPS), active ceci :
 # CSRF_COOKIE_SECURE = True
 # SESSION_COOKIE_SECURE = True
 CHANNEL_LAYERS = {

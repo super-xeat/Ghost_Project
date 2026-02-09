@@ -7,9 +7,9 @@ from typing import List, Optional
 User = get_user_model()
 
 class RegisterInSchema(Schema):
-    email: EmailStr
+    email: str
     username: str
-    password: str
+    password: str 
     password_confirmation: str
 
     @field_validator('password')

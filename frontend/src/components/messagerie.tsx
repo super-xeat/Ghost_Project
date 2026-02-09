@@ -18,6 +18,19 @@ export default function Messagerie() {
 
     const user_id = user?.id
 
+    const socket = new WebSocket('ws://localhost:8000/api/chat/')
+    
+      useEffect(()=> {
+        socket.onmessage = function(e) {
+        const data = JSON.parse(e.data)
+    
+        if (data.type === "notifier_demande_ami" || user?.Etat === 'en ligne') {
+          alert('vous avez une nouvelle demande')
+        }
+      }
+      socket.onerror = (err) => console.error('error socket', err)
+      }, [user])
+
     async function Recup_conversation() {
         if (!user_id) return
 

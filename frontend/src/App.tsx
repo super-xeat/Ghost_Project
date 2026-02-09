@@ -3,32 +3,24 @@ import Login from './page/login';
 import Register from './page/register';
 import ChatRoom from './components/chat';
 import Authcontext from './context/authcontext';
-import { useAuth } from './context/authcontext';
 import Messagerie from './components/messagerie';
-
+import Navbar from './components/navbar';
+import Demande_Amis from './components/demande_ami_liste';
 
 export default function App() {
   
-  const socket = new WebSocket('')
-  const {user} = useAuth()
-
-  socket.onmessage = function(e) {
-    const data = JSON.parse(e.data)
-
-    if (data.type === "notifier_demande_ami" || user?.Etat === 'en ligne') {
-
-      alert('vous avez une nouvelle demande')
-    }
-  }
+  
   return (  
     <Authcontext>
       <BrowserRouter>
-        <Routes>
-          <Route path='/' element={<Login/>}/>
-          <Route path='/register' element={<Register />}/>
-          <Route path='/chat' element={<ChatRoom />}/>
-          <Route path='/Accueil' element={<Messagerie />}/>
-        </Routes>
+        <Navbar/>
+            <Routes>
+            <Route path='/' element={<Login/>}/>
+            <Route path='/register' element={<Register />}/>
+            <Route path='/chat' element={<ChatRoom />}/>
+            <Route path='/demande_amis' element={<Demande_Amis />}/>
+            <Route path='/Accueil' element={<Messagerie />}/>
+          </Routes>
       </BrowserRouter>
     </Authcontext>
   )

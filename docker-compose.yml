@@ -8,12 +8,13 @@ services:
       - POSTGRES_DB=LOCAL_GHOST
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=tomfeu83
-    
+    ports:
+      - "5433:5432"
 
   # 2. Le Backend (Django Ninja)
   backend:
     build: ./backend
-    command: daphne -b 0.0.0.0 -p 8000 Setting.asgi:application
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./backend:/app
     ports:
@@ -33,7 +34,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     ports:
-      - "3000:5173"
+      - "5173:5173"
     environment:
       - CHOKIDAR_USEPOLLING=true # Utile pour le hot-reload sur certains OS
     stdin_open: true

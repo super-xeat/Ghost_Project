@@ -7,11 +7,14 @@ import jwt
 User = get_user_model()
 
 class AuthCookies(APIKeyCookie):
-    async def __call__(self, request):
-        cookie = request.COOKIES.get('access_token')
+    param_name: str = "access_token"
+    
+    async def authenticate(self, request, key):
+        if not key:
+            return None
         try:
             decode = jwt.decode(
-                cookie,
+                key,
                 settings.SECRET_KEY,
                 algorithms=['HS256']
             )

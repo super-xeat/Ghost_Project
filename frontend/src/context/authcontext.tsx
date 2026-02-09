@@ -1,5 +1,4 @@
 import { createContext, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 interface User {
     id: number
@@ -19,11 +18,10 @@ const ContextApp = createContext<AuthContextType | null>(null)
 export default function Authcontext({ children }: { children: React.ReactNode }) {
 
     const [user, setuser] = useState<User | null>(null)
-    const navigate = useNavigate()
-
+    
     const Login = async (email: string, password: string) => {
         try {
-            const response = await fetch('http://localhost:8000/auth/login/', {
+            const response = await fetch('http://localhost:8000/api/auth/login/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -45,7 +43,7 @@ export default function Authcontext({ children }: { children: React.ReactNode })
                     Etat: 'en ligne',
                     isAuth: true
                 })
-                navigate('/messagerie')
+                
                 console.log('Connexion réussie:', data.username, data.success);
             
             } 

@@ -46,12 +46,14 @@ async def accept(request, id1: int, id2: int, q: str):
             await user.liste_amis.aadd(user2)
             await demande.adelete()
             return 200, {'success': 'utilisateur ajouté a la liste des amis'}
-        else:
+        else: 
             await demande.adelete()
             return 200, {'success': 'demande supprimé'}
         
     except (User.DoesNotExist(), Demande_Ami.DoesNotExist()):
         return 404, {'error':'utilisateur introuvable'}
+
+#SECTION ==> recherche-ami
 
 
 #SECTION ==> discussion message

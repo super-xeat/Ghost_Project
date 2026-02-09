@@ -21,8 +21,9 @@ export default function Register() {
         if (file) {
             formdata.append('avatar', file)
         }
-        const response = await fetch('http://localhost:8000/auth/register/', {
+        const response = await fetch('http://localhost:8000/api/auth/register/', {
             method: 'POST',
+            credentials: 'include',
             body: formdata
         })
         if (response.ok) {

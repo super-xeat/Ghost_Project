@@ -28,54 +28,72 @@ class Messagerie(AsyncWebsocketConsumer):
     async def receive(self, text_data = None, bytes_data = None):
         data = json.loads(text_data)
         data_verif = MessageIn(**data)
-
-        #si l'utilisateur n'existe pas
-        destinataire_id = data_verif.user.id
-        if not await sync_to_async(User.objects.filter(id=destinataire_id).exists())():
+        action = data_verif.action
+        
+        destinataire_id = data_verif.destinataire_id
+        if not await User.objects.filter(id=destinataire_id).aexists():
             await self.send(text_data=json.dumps({"error": "Utilisateur inconnu"}))         
             return
         
-        #si on est ami ou pas
-        deja_amis = await sync_to_async(self.user.liste_amis.filter(id=destinataire_id).exists())()
+        
+        if action == 'demande_ami':  
+            deja_amis = await self.user.liste_amis.filter(id=destinataire_id).aexists()
+            if not deja_amis:        
+                demande_en_cours = await Demande_Ami.objects.filter(
+                    user=self.user, 
+                    destinataire_id=destinataire_id, 
+                    accept=False
+                ).aexists()
 
-        if not deja_amis:          
-            demande = await Demande_Ami.objects.acreate(
-                user=self.user,
-                destinataire=destinataire_id, 
-                accept=False
-            )
+                if not demande_en_cours:
+                    await self.Demander_ami(destinataire_id)
+                else:
+                    await self.send(text_data=json.dumps({"info": "Demande déjà en attente"}))
+            else:
+                await self.send(text_data=json.dumps({"info": "Déjà amis"}))
+
+        elif action == 'message':  
             destinataire = f"user_{destinataire_id}"
             await self.channel_layer.group_send(
-            destinataire,
-            {
-                "type": "notifier_demande_ami", 
-                "message": 'veux tu etre mon amigo',
-                "sender_id": self.user.id,
-                "demande_id": demande.id
-            }
+                destinataire,
+                {
+                    "type":'chat_message',
+                    "message": data_verif.texte,
+                    "sender": self.user.id
+                }
             )
-            await self.send(text_data=json.dumps({"success": "Demande envoyée"}))
-            return
-
-          
+        user_destinataire = await User.objects.aget(id=destinataire_id)
         
+        await self.creation_discussion_ou_pas(data_verif, user_destinataire)
+
+
+    async def Demander_ami(self, destinataire_id):
+        demande = await Demande_Ami.objects.acreate(
+            user=self.user,
+            destinataire_id=destinataire_id, 
+            accept=False
+        )
         destinataire = f"user_{destinataire_id}"
         await self.channel_layer.group_send(
-            destinataire,
-            {
-                "type":'chat_message',
-                "message": data_verif.text,
-                "sender": self.user.id
-            }
+        destinataire,
+        {
+            "type": "notifier_demande_ami", 
+            "message": 'veux tu etre mon amigo',
+            "sender_id": self.user.id,
+            "demande_id": demande.id
+        }
         )
-        user_destinataire = await User.objects.aget(id=destinataire_id)
+        await self.send(text_data=json.dumps({"success": "Demande envoyée"}))
+        return
+    
 
+    async def creation_discussion_ou_pas(self, data_verif, user_destinataire):
         discussion = await Discussion.objects.filter(user=self.user).filter(user=user_destinataire).afirst()
         if discussion:
             await Message.objects.acreate(
                 discussion=discussion, 
                 sender=self.user,
-                texte=data_verif.text
+                texte=data_verif.texte
             )
         else:
 
@@ -85,7 +103,7 @@ class Messagerie(AsyncWebsocketConsumer):
             await Message.objects.acreate(
                 discussion=discussion, 
                 sender=self.user,
-                texte=data_verif.text
+                texte=data_verif.texte
             )
 
     async def chat_message(self, event):
