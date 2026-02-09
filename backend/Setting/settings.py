@@ -122,7 +122,7 @@ PASSWORD_RESET_TIMEOUT = 7200
 import dj_database_url
 
 
-# Remplace l'ancien bloc DATABASES par celui-ci :
+
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get('DATABASE_URL'),

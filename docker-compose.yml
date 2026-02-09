@@ -1,5 +1,4 @@
 services:
-  # 1. La Base de Données
   db:
     image: postgres:15
     volumes:
@@ -11,7 +10,6 @@ services:
     ports:
       - "5433:5432"
 
-  # 2. Le Backend (Django Ninja)
   backend:
     build: ./backend
     command: python manage.py runserver 0.0.0.0:8000
@@ -20,7 +18,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgres://postgres:tomfeu83@db:5432/LOCAL_GHOST
+      - DATABASE_URL=postgres://postgres:tomfeu83@db:5433/LOCAL_GHOST
       - DEBUG=1
 
     
@@ -36,7 +34,7 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - CHOKIDAR_USEPOLLING=true # Utile pour le hot-reload sur certains OS
+      - CHOKIDAR_USEPOLLING=true
     stdin_open: true
     depends_on:
       - backend
