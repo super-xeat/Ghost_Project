@@ -11,7 +11,7 @@ export default function useToken(): TokenHookResponse {
     async function refresh(): Promise<boolean> {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:8000/auth/refresh/', {
+            const response = await fetch('http://localhost:8000/api/auth/refresh/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include' 

@@ -16,6 +16,7 @@ from ninja.responses import Response as NinjaResponse
 from typing import Optional
 from django.http import JsonResponse
 from users.authenticate import AuthCookies
+from django.views.decorators.csrf import ensure_csrf_cookie
 import jwt
 import os
 import httpx
@@ -33,6 +34,7 @@ else:
     print('pas de clé')
     
 
+@ensure_csrf_cookie
 @route_auth.post('register/', response={201: dict, 400: dict}, auth=None)
 async def register(request, data: RegisterInSchema=Form(...), avatar: Optional[UploadedFile]=File(None)):
     
@@ -101,6 +103,7 @@ async def confirmation_mail(request, token: str):
         return 400, {"error": "Lien invalide ou utilisateur introuvable."}
     
 
+@ensure_csrf_cookie
 @route_auth.post('login/', response={201: dict, 401: dict}, auth=None)
 async def login(request, data: LoginIn):
     try:
@@ -141,7 +144,7 @@ async def login(request, data: LoginIn):
         value=access_token,
         httponly=True,
         secure=False,
-        samesite='Lax',
+        samesite=None,
         max_age=3600 * 24
     )
     response.set_cookie(
@@ -149,12 +152,13 @@ async def login(request, data: LoginIn):
         value=refresh_token,
         httponly=True,
         secure=False,
-        samesite='Lax',
+        samesite=None,
         max_age=3600 * 24
     )
     return response
     
 
+@ensure_csrf_cookie
 @route_auth.post('logout/')
 async def Logout(request):
     response = NinjaResponse({'message':'déconnexion'})
@@ -209,5 +213,11 @@ async def Refresh_token(request, data):
     )
     return response
 
-
+# @route_auth.get('profile/{id}/', response={ProfileSchema})
+# async def Profile(request, id):
+#     try:
+#         user = await User.objects.aget(id=id)
+#         return user
+#     except User.DoesNotExist:
+#         return 401, {'error': 'erreur utilisateur inconnu'}
 

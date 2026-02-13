@@ -1,26 +1,26 @@
 import React, { useState } from "react";
 import { Box, TextField, Button } from "@mui/material";
+import { useAuth } from "../context/authcontext";
 
 
 export default function Recherche() {
 
+    const {sendmessage, user} = useAuth()
     const [search, setsearch] = useState<string>('')
-
-    const Envoyer_demande = (e: React.FormEvent) => {
-        
+    
+      
+    function Envoyer_demande(e: React.FormEvent) {
         e.preventDefault()
-        const socket = new WebSocket('ws://localhost:8000/ws/chat/')
-  
-        socket.onopen = () => {
-            const payload = {
-                action: "demande_ami",
-                destinataire_id: parseInt(search)
-            } 
-            socket.send(JSON.stringify(payload))
-        
-            alert("Demande envoyée !");
+        if (!user) return 
+
+        const destinataire_id = search ? parseInt(search, 10) : null
+
+        if (destinataire_id) {
+            sendmessage({
+            action: "demande_ami",
+            destinataire_id: destinataire_id
+        })
         }
-        socket.onerror = (err) => console.error('error socket', err)
     }
 
     return(

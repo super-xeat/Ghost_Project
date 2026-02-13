@@ -3,6 +3,8 @@ import type { FormEvent } from "react";
 import { Typography, Box } from "@mui/material";
 import { useAuth } from "../context/authcontext";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+
 
 interface Login {
     email: string,
@@ -21,10 +23,13 @@ export default function Login() {
         Login(email, password)
         setEmail('');
         setPassword('');  
-        if (user?.Etat === 'en ligne') {
-        navigate('/Accueil')}
     }
     
+    useEffect(()=> {
+        if (user && user.Etat === 'en ligne') {
+            navigate('/Accueil')
+        }
+    }, [user])
     return (
         <Box sx={{backgroundColor: '#ada4a4', height:'100%'}}>
             <Typography variant="h4">page de connexion</Typography>

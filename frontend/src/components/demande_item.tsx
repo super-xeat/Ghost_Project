@@ -31,12 +31,11 @@ export default function Demande_item({item, onrefresh}: DemandeItemProps) {
             console.error('error :', error)
         }
     }
-
     
     return(
         <Box>
             <form>
-                <p>{item.user.username} veut etre votre ami</p>
+                <p>{item.user.name} veut etre votre ami</p>
                 <button onClick={()=>Valider_supprimer(true)}>accepter</button>
                 <button onClick={()=>Valider_supprimer(false)}>refuser</button>
             </form>

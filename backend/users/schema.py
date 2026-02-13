@@ -57,6 +57,13 @@ class LoginOut(Schema):
     username: str
     success: str
   
-    
+
+# class ProfileSchema(Schema):
+#     id: int
+#     email: EmailStr
+#     username: str
+#     statut: str
+#     statut_discussion: str
+#     liste_amis: List[int]
 
 

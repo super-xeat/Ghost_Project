@@ -13,26 +13,19 @@ User = get_user_model()
 # SECTION ==> demande-ami 
 @route_chat.get('liste_demande/{id}/', response={200: List[DemandeOut], 404: dict })
 async def Liste_demande(request, id: int):
+    print('id :', id)
     try:
-        user = await User.objects.aget(id=id)
+        user = await User.objects.filter(id=id).aexists()
+        if not user:
+            return 404, {'error': 'user introuvable'}
+        print('user :', user)
         liste = await sync_to_async(list)(Demande_Ami.objects.filter(destinataire=user.id))
         return 200, liste
-    
-    except User.DoesNotExist:
-        return 404, {'error':'cette user existe pas'}
+     
+    except Exception as e:
+        print(f'Erreur : {e}')
+        return 500, {'error': 'Erreur interne du serveur'}
 
-
-@route_chat.get('demande/{id1}/{id2}/', response={200: DemandeOut, 404: dict})
-async def demande_item(request, id1:int, id2: int):
-    try:
-        user = await User.objects.aget(id=id1)
-        demande = await Demande_Ami.objects.aget(id=id2, user=user.id)
-        return 200, demande
-    
-    except User.DoesNotExist:
-        return 404, {'error': 'utilisateur non trouvé'}
-    except Demande_Ami.DoesNotExist:
-        return 404, {'error':'utilisateur non trouvé'}
 
 
 @route_chat.put('accept/{id1}/{id2}/{q}/', response={200: dict, 404: dict})
@@ -71,12 +64,4 @@ async def Liste_discussion(request, id: int):
         return Response({'error':'utilisateur introuvable'})
     
 
-@route_chat.get('discussions/<int>/', response={201: dict})
-async def Messages(request, id: int):
-    try:
-        user = await User.objects.aget(id=id)
-        user2 = await User.objects.aget(id=id_2)
-    except User.DoesNotExist:
-        return 
-    
 

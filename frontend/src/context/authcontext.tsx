@@ -1,24 +1,39 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
+import type { Dispatch } from "react";
+import type { SetStateAction } from "react";
 
-interface User {
+
+export interface UserType {
     id: number
     name: string,
     Etat: 'en ligne' | 'hors-ligne',
     isAuth: boolean
 }
 
-interface AuthContextType {
-    user: User | null,
+export interface Message {
+    action: string;
+    destinataire_id: number; 
+    user?: number | null; 
+    sender_name?: string;   
+    texte?: string;
+}
+
+export interface AuthContextType {
+    user: UserType | null,
     Login: (email: string, password: string) => Promise<void>,
     Logout: ()=> Promise<void>
+    sendmessage: (message: Message)=> void
+    message: Message[]
+    setmessage: Dispatch<SetStateAction<Message[]>>
 }
 
 const ContextApp = createContext<AuthContextType | null>(null)
 
 export default function Authcontext({ children }: { children: React.ReactNode }) {
 
-    const [user, setuser] = useState<User | null>(null)
-    
+    const [user, setuser] = useState<UserType | null>(null)
+    const [message, setmessage] = useState<Message[]>([])
+
     const Login = async (email: string, password: string) => {
         try {
             const response = await fetch('http://localhost:8000/api/auth/login/', {
@@ -42,10 +57,8 @@ export default function Authcontext({ children }: { children: React.ReactNode })
                     name: data.username,
                     Etat: 'en ligne',
                     isAuth: true
-                })
-                
-                console.log('Connexion réussie:', data.username, data.success);
-            
+                })              
+                console.log('Connexion réussie:', data.username, data.success);          
             } 
             if (response.status === 401) {
                 alert('erreur de mdp ou de mail')
@@ -56,21 +69,55 @@ export default function Authcontext({ children }: { children: React.ReactNode })
     }
 
     const Logout = async() => {
-        const response = await fetch('http://localhost:8000/auth/logout/', {
+        const response = await fetch('http://localhost:8000/api/auth/logout/', {
             method: 'POST',
             credentials: 'include'
         })
         if (response.ok) {
             const data = await response.text()
             console.log('vous etes deconnecté', data)
+
         } else {
             const data = await response.text()
             console.log('vous etes deconnecté', data)
         }
     }
 
+    const socketRef = useRef<WebSocket | null>(null)
+    useEffect(()=> {
+        if (!user) return
+
+        const ws = new WebSocket('ws://localhost:8000/ws/chat/');
+        socketRef.current = ws
+        ws.onopen = ()=> {console.log('socket ouvert')}
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data)
+            // 6. Réception des message chez l'autre personne
+            // a partir de là ... chemin inverse pour que je recoive MOI les message
+            
+            if (data.action === 'demande_ami') {
+                alert('vous avez une demande ami')
+            } 
+            if (data.action === 'message') {
+                setmessage(prev =>[...prev, data])
+            }
+        }
+        return ()=> {
+            ws.close()
+            console.log('serveur éteint')
+        }
+    }, [user])
+
+    const sendmessage = (message: Message) => {
+        const ws = socketRef.current
+        if (ws && ws.readyState === WebSocket.OPEN) {     
+            ws.send(JSON.stringify(message))
+            // 1. Envoi du message dans MON django
+        }
+    }
+
     return(
-        <ContextApp.Provider value={{Login, user, Logout}}>
+        <ContextApp.Provider value={{Login, user, Logout, sendmessage, message, setmessage}}>
             {children}
         </ContextApp.Provider>
     )
