@@ -18,14 +18,11 @@ export default function Messagerie() {
 
     const user_id = user?.id
 
-
-    
-
     async function Recup_conversation() {
         if (!user_id) return
 
         try {
-            let response = await fetch(`http://localhost:8000/chat/liste_discussion/${user_id}`, {
+            let response = await fetch(`http://localhost:8000/api/chat/liste_discussion/${user_id}/`, {
                 method: 'GET',
                 headers: {'content-type': 'application/json'},
                 credentials:'include'
@@ -36,7 +33,7 @@ export default function Messagerie() {
                 const isrefresh = await refresh()
 
                 if (isrefresh) {
-                    response = await fetch(`http://localhost:8000/chat/liste_discussion/${user_id}`, {
+                    response = await fetch(`http://localhost:8000/api/chat/liste_discussion/${user_id}`, {
                     method: 'GET',
                     headers: {'content-type': 'application/json'},
                     credentials:'include'
@@ -45,6 +42,7 @@ export default function Messagerie() {
             }
             if (response.ok) {
                 const data = await response.json()
+                console.log('data :', data)
                 setliste(data)
             }
         } catch(error) {
@@ -61,20 +59,30 @@ export default function Messagerie() {
     if (loading) return <p>chargement ...</p>
 
     return(
-        <Box>
-            <Typography></Typography>
-            {liste ? (
-                liste.map((char, index)=> (
-                    <li key={index}>
-                        {char.name}
-                        {char.id}
-                    </li>
-                ))
-            ) : (
-                <Typography>
-                    pas de conversation en cours
-                </Typography>
-            )}
+        <Box sx={{
+            backgroundColor: '#999797ec',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center'
+        }}>
+            <Box sx={{
+                backgroundColor: '#f91717',
+
+            }}>
+                <Typography>Discussion en cours :</Typography>
+                {liste ? (
+                    liste.map((char, index)=> (
+                        <li key={index}>
+                            {char.name}
+                            {char.id}
+                        </li>
+                    ))
+                ) : (
+                    <Typography>
+                        pas de conversation en cours
+                    </Typography>
+                )}
+            </Box>
         </Box>
     )
 }

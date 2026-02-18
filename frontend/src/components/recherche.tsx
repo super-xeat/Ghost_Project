@@ -28,6 +28,11 @@ export default function Recherche() {
             <Box sx={{ p: 2 }}>
                 <form onSubmit={Envoyer_demande}>
                     <TextField 
+                        sx={{
+                            backgroundColor: '#f6c582e9',
+                            border: '2px solid #565555e6',
+                            borderRadius: '20px'
+                        }}
                         label="ID de l'ami"
                         variant="outlined"
                         value={search} 

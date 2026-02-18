@@ -103,6 +103,7 @@ class Messagerie(AsyncWebsocketConsumer):
                 sender=self.user,
                 texte=data_verif.texte
             )
+            print('message ajouté a la discussion existante')
         else:
 
             discussion = await Discussion.objects.acreate()
@@ -113,6 +114,7 @@ class Messagerie(AsyncWebsocketConsumer):
                 sender=self.user,
                 texte=data_verif.texte
             )
+            print('message créer et discussion créé')
 
     async def chat_message(self, event):
     # 4. Réception (dans le django de l'autre personne)

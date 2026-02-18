@@ -57,13 +57,17 @@ class LoginOut(Schema):
     username: str
     success: str
   
+class Userschema(Schema):
+    id: int
+    username: str
 
-# class ProfileSchema(Schema):
-#     id: int
-#     email: EmailStr
-#     username: str
-#     statut: str
-#     statut_discussion: str
-#     liste_amis: List[int]
+
+class ProfileSchema(Schema):
+    id: int
+    email: EmailStr
+    username: str
+    statut: str
+    status_discussion: str
+    liste_amis: List[Userschema] = []
 
 

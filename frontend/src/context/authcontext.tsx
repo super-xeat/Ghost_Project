@@ -1,3 +1,4 @@
+import { Message } from "@mui/icons-material";
 import { createContext, useContext, useEffect, useState, useRef } from "react";
 import type { Dispatch } from "react";
 import type { SetStateAction } from "react";
@@ -5,7 +6,7 @@ import type { SetStateAction } from "react";
 
 export interface UserType {
     id: number
-    name: string,
+    username: string,
     Etat: 'en ligne' | 'hors-ligne',
     isAuth: boolean
 }
@@ -34,6 +35,25 @@ export default function Authcontext({ children }: { children: React.ReactNode })
     const [user, setuser] = useState<UserType | null>(null)
     const [message, setmessage] = useState<Message[]>([])
 
+    useEffect(()=> {
+        async function Csrf_token() {
+            try {
+                const response = await fetch('http://localhost:8000/api/auth/csrf', {
+                    method:'GET',
+                    credentials: 'include'
+                })
+                
+                if (response.ok) {
+                    console.log('csrf créer')
+                }
+
+            } catch (error) {
+                console.log('error de lappel')
+            }
+        }
+        Csrf_token()
+    }, [])
+
     const Login = async (email: string, password: string) => {
         try {
             const response = await fetch('http://localhost:8000/api/auth/login/', {
@@ -54,11 +74,11 @@ export default function Authcontext({ children }: { children: React.ReactNode })
             
                 setuser({
                     id: data.id,
-                    name: data.username,
+                    username: data.username,
                     Etat: 'en ligne',
                     isAuth: true
                 })              
-                console.log('Connexion réussie:', data.username, data.success);          
+                console.log('Connexion réussie:', data.id, data.username, data.success);          
             } 
             if (response.status === 401) {
                 alert('erreur de mdp ou de mail')
@@ -110,8 +130,9 @@ export default function Authcontext({ children }: { children: React.ReactNode })
 
     const sendmessage = (message: Message) => {
         const ws = socketRef.current
-        if (ws && ws.readyState === WebSocket.OPEN) {     
+        if (ws && ws.readyState === WebSocket.OPEN) {    
             ws.send(JSON.stringify(message))
+            setmessage(prev => [...prev, message])
             // 1. Envoi du message dans MON django
         }
     }

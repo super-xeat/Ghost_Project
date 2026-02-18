@@ -1,7 +1,6 @@
 from django.db import models
 
 class Discussion(models.Model):
-    # On remplace settings.AUTH_USER_MODEL par la string 'users.User' (ou le nom de ton app.Modèle)
     user = models.ManyToManyField('users.User', related_name="discussions")
     date = models.DateTimeField(auto_now_add=True)
 

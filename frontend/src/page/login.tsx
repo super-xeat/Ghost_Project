@@ -30,10 +30,11 @@ export default function Login() {
             navigate('/Accueil')
         }
     }, [user])
+    
     return (
-        <Box sx={{backgroundColor: '#ada4a4', height:'100%'}}>
+        <Box sx={{backgroundColor: '#ada4a4', height:'100%', mt: 10}}>
             <Typography variant="h4">page de connexion</Typography>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit}>
                 <input 
                     onChange={(e) => setEmail(e.target.value)} 
                     value={email} 
@@ -49,10 +50,7 @@ export default function Login() {
                     className="border p-2 rounded"
                     required
                 />
-                <button 
-                    type="submit" 
-                    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-                >
+                <button type="submit">
                     se connecter
                 </button>
                 

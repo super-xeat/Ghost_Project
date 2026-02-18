@@ -1,7 +1,7 @@
 from ninja import Router, Form, File
 from ninja.files import UploadedFile
 from django.conf import settings
-from users.schema import RegisterInSchema, LoginIn, LoginOut
+from users.schema import RegisterInSchema, LoginIn, LoginOut, ProfileSchema
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
@@ -16,7 +16,8 @@ from ninja.responses import Response as NinjaResponse
 from typing import Optional
 from django.http import JsonResponse
 from users.authenticate import AuthCookies
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from django.http import HttpResponse
 import jwt
 import os
 import httpx
@@ -32,7 +33,12 @@ if key:
     print('brevokey', key)
 else:
     print('pas de clé')
-    
+
+
+@route_auth.get('/csrf', auth=None)
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    return HttpResponse('csrf créer')
 
 @ensure_csrf_cookie
 @route_auth.post('register/', response={201: dict, 400: dict}, auth=None)
@@ -136,8 +142,11 @@ async def login(request, data: LoginIn):
     )
     
     response = NinjaResponse({
+        'id': user.id,
+        'status': user.statut,
         'username': user.username,
-        'success connecté': "connecté"})
+        'success': "connecté"
+        })
     
     response.set_cookie(
         key="access_token",
@@ -158,7 +167,7 @@ async def login(request, data: LoginIn):
     return response
     
 
-@ensure_csrf_cookie
+@csrf_exempt
 @route_auth.post('logout/')
 async def Logout(request):
     response = NinjaResponse({'message':'déconnexion'})
@@ -213,11 +222,11 @@ async def Refresh_token(request, data):
     )
     return response
 
-# @route_auth.get('profile/{id}/', response={ProfileSchema})
-# async def Profile(request, id):
-#     try:
-#         user = await User.objects.aget(id=id)
-#         return user
-#     except User.DoesNotExist:
-#         return 401, {'error': 'erreur utilisateur inconnu'}
-
+@route_auth.get('profile/{id}/', response={200: ProfileSchema, 401: dict})
+async def Profile(request, id):
+    try:
+        user = await User.objects.prefetch_related('liste_amis').aget(id=id)
+        return 200, user
+    
+    except User.DoesNotExist:
+        return 401, {'error': 'Utilisateur inconnu'}
