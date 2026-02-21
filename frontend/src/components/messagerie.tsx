@@ -71,12 +71,12 @@ export default function Messagerie() {
 
             }}>
                 <Typography>Discussion en cours :</Typography>
-                {liste ? (
+                {liste ? ( 
                     liste.map((discussion, index)=> (
-                        <li key={index}>
+                        <li key={index}>  
                             <Link to={`chatroom1/${discussion.id}`}>continuer la discussion avec {discussion?.user}</Link>
                         </li>
-                    ))
+                    ))              
                 ) : (
                     <Typography>
                         pas de conversation en cours

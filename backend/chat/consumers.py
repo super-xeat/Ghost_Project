@@ -62,7 +62,8 @@ class Messagerie(AsyncWebsocketConsumer):
             else:
                 await self.send(text_data=json.dumps({"info": "Déjà amis"}))
 
-        elif action == 'message':  
+
+        elif action == 'message':            
         # 2. réception du message(qui vient de mon react)
             destinataire = f"user_{destinataire_id}"
             await self.channel_layer.group_send(
@@ -77,6 +78,21 @@ class Messagerie(AsyncWebsocketConsumer):
                     "sender_name": self.user.username
                 }
             )
+
+        elif action == 'message_groupé':
+        # si message groupé on récupére id de tout les user 
+            if destinataire_id == discussion_id:
+                for destinataire in discussion_id:
+                    await self.channel_layer.group_send(
+                        destinataire,
+                        {
+                            "type":'chat_message',
+                            "message": data_verif.texte,
+                            "sender_id": self.user.id,
+                            "sender_name": self.user.username
+                        }
+                    )
+
         user_destinataire = await User.objects.aget(id=destinataire_id)       
         await self.creation_discussion_ou_pas(data_verif, user_destinataire)
 

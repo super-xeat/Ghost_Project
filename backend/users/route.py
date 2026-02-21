@@ -40,6 +40,7 @@ else:
 def get_csrf_token(request):
     return HttpResponse('csrf créer')
 
+
 @ensure_csrf_cookie
 @route_auth.post('register/', response={201: dict, 400: dict}, auth=None)
 async def register(request, data: RegisterInSchema=Form(...), avatar: Optional[UploadedFile]=File(None)):
