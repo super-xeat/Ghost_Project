@@ -4,13 +4,12 @@ import { Box, TextField, Button, List, ListItem, Typography } from "@mui/materia
 import { useParams } from "react-router-dom";
 
 
-
 export default function ChatRoom() {
 
     const {user, sendmessage, message } = useAuth()
     const [input, setinput] = useState('')
     const {id} = useParams<{id: string}>()
-
+    
     
     const handlesubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -24,8 +23,8 @@ export default function ChatRoom() {
         })
         }
         setinput('')
-    }
-    
+    }  
+
     return (
         <Box sx={{
             backgroundColor: '#999595ed',
@@ -34,6 +33,7 @@ export default function ChatRoom() {
             justifyContent: {xs: 'space-between'},
             height: '100vh'
         }}>
+            
             <Box sx={{
                 display: 'flex',
                 alignItems: {xs: 'center'},    

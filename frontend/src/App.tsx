@@ -9,6 +9,7 @@ import Demande_Amis from './components/demande_ami_liste';
 import Profile from './page/profile';
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 
+
 export default function App() {
   
   const theme = createTheme()
@@ -22,7 +23,8 @@ export default function App() {
               <Route path='/' element={<Login/>}/>
               <Route path='/profile/:id' element={<Profile/>}/>
               <Route path='/register' element={<Register />}/>
-              <Route path='/chatroom/:id' element={<ChatRoom />}/>
+              <Route path='/chatroom1/:id' element={<ChatRoom />}/>
+              <Route path='/Accueil/chatroom1/:id' element={<ChatRoom />}/>
               <Route path='/demande_amis' element={<Demande_Amis />}/>
               <Route path='/Accueil' element={<Messagerie />}/>
             </Routes>

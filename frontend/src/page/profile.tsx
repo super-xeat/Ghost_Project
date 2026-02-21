@@ -68,7 +68,7 @@ export default function Profile() {
                     {liste && liste.map((char, index)=> (
                         <li key={index}>
                             <Button onClick={()=>supprimer(char.id)}>supprimer</Button>
-                            <Link to={`/chatroom/${char.id}`}>
+                            <Link to={`/chatroom1/${char.id}`}>
                             discuter avec {char.username}
                             </Link>
                         </li>

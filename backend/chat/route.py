@@ -2,7 +2,7 @@ from ninja import Router
 from ninja.responses import Response 
 from chat.models import Demande_Ami, Discussion, Message
 from django.contrib.auth import get_user_model
-from chat.shema import DemandeOut, DiscussionOut
+from chat.shema import DemandeOut, DiscussionOut, MessageOut
 from typing import List
 from asgiref.sync import sync_to_async
 
@@ -80,12 +80,27 @@ async def Liste_discussion(request, id: int):
                 "user": [k.id for k in users],
                 'date': i.date
             })
-            return 200, result
-        print('discussion :', discussion)
-        return 200, discussion
-
+        
+        print('result :', result)
+        return 200, result
+        
     except User.DoesNotExist:
         return Response({'error':'utilisateur introuvable'})
     
 
+@route_chat.get('discussion/{discussion_id}/{user_id}/', response={201: List[MessageOut], 400: dict})
+async def discussion(request, discussion_id: int, user_id: int):
+    try:
+        discussion = await Discussion.objects.aget(id=discussion_id)
+        print('discussion :', discussion)
+        
+        msg_discussion = await sync_to_async(list)(Message.objects.filter(
+            discussion=discussion,
+            sender_id=user_id
+        ).values('texte'))
 
+        print('resultat :', msg_discussion)
+        return 201, msg_discussion
+    
+    except Discussion.DoesNotExist:
+        return 400, {'error':'discussion introuvable'}

@@ -56,6 +56,9 @@ export default function Navbar() {
                 <Recherche/>
             </Box>
             
+            <Link to={'/Accueil'}>
+                Accueil
+            </Link>
             <Link 
                 to={'/demande_amis'}
                 style={{ color: 'white', width: '10vh'}}

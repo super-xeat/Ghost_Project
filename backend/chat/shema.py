@@ -11,13 +11,14 @@ class MessageIn(Schema):
     user: Optional[int] = None 
     texte: Optional[str] = None
 
-class MessageOut(Schema):
-    user: int
-    texte: str
-
 class UserInfoSchema(Schema):
     id: int
     username: str
+
+
+class MessageOut(Schema):
+    texte: Optional[str]
+    
 
 class DemandeOut(Schema):
     id: int

@@ -17,7 +17,7 @@ class Messagerie(AsyncWebsocketConsumer):
             print('user anonyme')
             await self.close()
         else:
-            self.name = f'user_{self.user.id}'
+            self.name = f'user_{self.user.id}'          
             await self.channel_layer.group_add(
                 self.name,
                 self.channel_name
@@ -37,8 +37,16 @@ class Messagerie(AsyncWebsocketConsumer):
             await self.send(text_data=json.dumps({"error": "Utilisateur inconnu"}))         
             return
         
+        if action == 'join_discussion':
+            discussion_id = data.get('discussion_id')
+            self.discussion = f'discussion_{discussion_id}'
+
+            await self.channel_layer.group_add(
+                self.discussion,
+                self.channel_name
+            )
         
-        if action == 'demande_ami':
+        elif action == 'demande_ami':
             deja_amis = await self.user.liste_amis.filter(id=destinataire_id).aexists()
             if not deja_amis:        
                 demande_en_cours = await Demande_Ami.objects.filter(
@@ -69,8 +77,7 @@ class Messagerie(AsyncWebsocketConsumer):
                     "sender_name": self.user.username
                 }
             )
-        user_destinataire = await User.objects.aget(id=destinataire_id)
-        
+        user_destinataire = await User.objects.aget(id=destinataire_id)       
         await self.creation_discussion_ou_pas(data_verif, user_destinataire)
 
 

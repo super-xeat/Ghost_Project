@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import useToken from "../context/hook-refresh";
 import { Box, Typography } from "@mui/material";
 import { useAuth } from "../context/authcontext";
+import { Link } from "react-router-dom";
 
 
 interface discussion {
-    name: string
     id: number
+    user: number
 }
 
 export default function Messagerie() {
@@ -33,7 +34,7 @@ export default function Messagerie() {
                 const isrefresh = await refresh()
 
                 if (isrefresh) {
-                    response = await fetch(`http://localhost:8000/api/chat/liste_discussion/${user_id}`, {
+                    response = await fetch(`http://localhost:8000/api/chat/liste_discussion/${user_id}/`, {
                     method: 'GET',
                     headers: {'content-type': 'application/json'},
                     credentials:'include'
@@ -42,7 +43,7 @@ export default function Messagerie() {
             }
             if (response.ok) {
                 const data = await response.json()
-                console.log('data :', data)
+                console.log('data messagerie :', data)
                 setliste(data)
             }
         } catch(error) {
@@ -71,10 +72,9 @@ export default function Messagerie() {
             }}>
                 <Typography>Discussion en cours :</Typography>
                 {liste ? (
-                    liste.map((char, index)=> (
+                    liste.map((discussion, index)=> (
                         <li key={index}>
-                            {char.name}
-                            {char.id}
+                            <Link to={`chatroom1/${discussion.id}`}>continuer la discussion avec {discussion?.user}</Link>
                         </li>
                     ))
                 ) : (
