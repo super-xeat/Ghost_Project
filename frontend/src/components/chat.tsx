@@ -1,16 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/authcontext";
 import { Box, TextField, Button, List, ListItem, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
 
 
-export default function ChatRoom() {
+interface Mode {
+    mode: 'discussion' | 'profile'
+}
+
+export default function ChatRoom({mode}: Mode) {
 
     const {user, sendmessage, message } = useAuth()
     const [input, setinput] = useState('')
+    const [liste, setliste] = useState([])
     const {id} = useParams<{id: string}>()
     
+    console.log('id :', id)
     
+
+    const Recup_message = async(id: number) => {
+        try {
+            const response = await fetch(`http://localhost:8000/api/chat/discussion/${id}/`, {
+                method: 'GET',
+                credentials: 'include'
+            })
+
+            if(response.ok) {
+                const data = await response.json()
+                console.log('data_msg :', data)
+                setliste(data.msg_discussion)
+            }
+        } catch(error) {
+            console.error('error de fetch :', error)
+        }
+    }
+    
+    useEffect(()=> {
+        if (id && mode === 'discussion') {
+            Recup_message(parseInt(id))
+        }
+    }, [])
+
     const handlesubmit = (e: React.FormEvent) => {
         e.preventDefault()
         const destinataire_id = id ? parseInt(id, 10) : null;
@@ -25,6 +55,7 @@ export default function ChatRoom() {
         setinput('')
     }  
 
+    
     return (
         <Box sx={{
             backgroundColor: '#999595ed',
@@ -33,7 +64,13 @@ export default function ChatRoom() {
             justifyContent: {xs: 'space-between'},
             height: '100vh'
         }}>
-            
+            <List>
+                {liste && liste.map((char, index)=> (
+                    <ListItem key={index}>
+                        {char}
+                    </ListItem>
+                ))}
+            </List>
             <Box sx={{
                 display: 'flex',
                 alignItems: {xs: 'center'},    

@@ -18,6 +18,7 @@ from django.http import JsonResponse
 from users.authenticate import AuthCookies
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.http import HttpResponse
+from chat.models import Discussion, Message
 import jwt
 import os
 import httpx
@@ -224,10 +225,38 @@ async def Refresh_token(request, data):
     return response
 
 @route_auth.get('profile/{id}/', response={200: ProfileSchema, 401: dict})
-async def Profile(request, id):
+async def Profile(request, id: int):
     try:
+        # objectif : sortir les infos du user avec sa liste d'amis (relation M2M)
+
+        # Manager = interface qui permet a django de manipuler les tables en bdd ==> objects par ex
+
+        # user.liste_ami ne fonctionne pas car django est paresseux ==> il renvoie un manager (ManyRelatedManager)
+        # ce qui laisse l'opportunité d'affiné la demande avec filter par exemple ...
+
+        # Le cache = comme tu as prefetch_related liste_amis a été charger en avance, il est donc charger en interne
+        # dans la mémoire vive(le cache) ==> django evite le sql pour chaque ami
+
+        # async for ==> django est concu pour etre synchrone, dans route asynchrone si on utilise le synchrone cela 
+        # déclenche une error(SynchronousOnlyOperation), DONC il faut async for pour que chaque user soit 
+        # traité (depuis le cache) sans blockage
+
+        # recuperation de user et préchargement de liste_ami
         user = await User.objects.prefetch_related('liste_amis').aget(id=id)
-        return 200, user
+        # extraction de liste_amis dpeuis le cache avec async for
+        amis = [ami async for ami in user.liste_amis.all()]
+
+        
+        response = {
+            "id": user.id,
+            "email": user.email,
+            "username": user.username,
+            "statut": user.statut,
+            "status_discussion": user.status_discussion,
+            "liste_amis": amis
+        }
+        
+        return 200, response
     
     except User.DoesNotExist:
         return 401, {'error': 'Utilisateur inconnu'}

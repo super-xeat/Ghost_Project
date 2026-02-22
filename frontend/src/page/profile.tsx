@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { useAuth } from "../context/authcontext";
 import type { UserType } from "../context/authcontext";
-import { Link } from "react-router-dom";
-
+import Recup_conv from "../components/Profil_ami_item";
 
 export default function Profile() {
 
     const {user} = useAuth()
     const [liste, setliste] = useState<UserType[]>([])
+    
 
     async function Profile_fetch(id: number)  {
         if (!user) {
@@ -52,6 +52,7 @@ export default function Profile() {
         }        
     }, [user?.id])
 
+    
     return(
         <Box sx={{
             backgroundColor: '#959090',
@@ -66,11 +67,13 @@ export default function Profile() {
                 <Typography>Liste-amis :</Typography>
                 <Box>
                     {liste && liste.map((char, index)=> (
-                        <li key={index}>
+                        
+                        <li key={index}>                          
                             <Button onClick={()=>supprimer(char.id)}>supprimer</Button>
-                            <Link to={`/chatroom1/${char.id}`}>
-                            discuter avec {char.username}
-                            </Link>
+                            <Recup_conv 
+                            name={char.username}
+                            id1={user?.id}
+                            id2={char.id}/>
                         </li>
                     ))}
                 </Box>

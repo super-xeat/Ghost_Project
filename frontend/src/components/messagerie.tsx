@@ -74,7 +74,7 @@ export default function Messagerie() {
                 {liste ? ( 
                     liste.map((discussion, index)=> (
                         <li key={index}>  
-                            <Link to={`chatroom1/${discussion.id}`}>continuer la discussion avec {discussion?.user}</Link>
+                            <Link to={`/chatroom1/discussion/${discussion.id}`}>continuer la discussion avec {discussion?.user}</Link>
                         </li>
                     ))              
                 ) : (

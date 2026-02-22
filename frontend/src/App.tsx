@@ -23,8 +23,8 @@ export default function App() {
               <Route path='/' element={<Login/>}/>
               <Route path='/profile/:id' element={<Profile/>}/>
               <Route path='/register' element={<Register />}/>
-              <Route path='/chatroom1/:id' element={<ChatRoom />}/>
-              <Route path='/Accueil/chatroom1/:id' element={<ChatRoom />}/>
+              <Route path='/chatroom1/discussion/:id' element={<ChatRoom mode={'discussion'}/>}/>
+              <Route path='/chatroom1/profile/:id' element={<ChatRoom mode={'profile'}/>}/>
               <Route path='/demande_amis' element={<Demande_Amis />}/>
               <Route path='/Accueil' element={<Messagerie />}/>
             </Routes>

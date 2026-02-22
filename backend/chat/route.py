@@ -88,15 +88,14 @@ async def Liste_discussion(request, id: int):
         return Response({'error':'utilisateur introuvable'})
     
 
-@route_chat.get('discussion/{discussion_id}/{user_id}/', response={201: List[MessageOut], 400: dict})
-async def discussion(request, discussion_id: int, user_id: int):
+@route_chat.get('discussion/{discussion_id}/', response={201: List[MessageOut], 400: dict})
+async def discussion(request, discussion_id: int):
     try:
         discussion = await Discussion.objects.aget(id=discussion_id)
         print('discussion :', discussion)
         
         msg_discussion = await sync_to_async(list)(Message.objects.filter(
-            discussion=discussion,
-            sender_id=user_id
+            discussion=discussion
         ).values('texte'))
 
         print('resultat :', msg_discussion)
@@ -104,3 +103,16 @@ async def discussion(request, discussion_id: int, user_id: int):
     
     except Discussion.DoesNotExist:
         return 400, {'error':'discussion introuvable'}
+
+
+@route_chat.get('trouver_discussion/{user_id}/{user_id2}/', response={200:dict, 400: dict})
+async def trouver_discussion(request, user_id: int, user_id2: int):
+    try:
+    # filter, exclude ou order_by se contente de retourner un queryset
+    # si on veut les manipuler il faut ajouter un all ou get ou first
+    # Donc on prépare le queryset et on appelle ce qu'on veut de manière async
+        discussion = await Discussion.objects.filter(user=user_id).filter(user=user_id2).aget()
+        return 200, {'id': discussion.id}
+    
+    except (User.DoesNotExist, Discussion.DoesNotExist):
+        return 400, {'error': 'discussion introuvable'}
