@@ -25,22 +25,21 @@ export default function Recherche() {
 
     return(
         <Box>
-            <Box sx={{ p: 2 }}>
+            <Box sx={{ 
+                p: 3
+                }}>
                 <form onSubmit={Envoyer_demande}>
                     <TextField 
+                    size="small"
                         sx={{
                             backgroundColor: '#f6c582e9',
                             border: '2px solid #565555e6',
-                            borderRadius: '20px'
+                            borderRadius: '15px'
                         }}
-                        label="ID de l'ami"
-                        variant="outlined"
                         value={search} 
                         onChange={(e) => setsearch(e.target.value)}
                     />
-                    <Button type="submit" variant="contained" sx={{ ml: 2 }}>
-                        Ajouter
-                    </Button>
+                    
                 </form>
             </Box>
         </Box>

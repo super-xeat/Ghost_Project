@@ -88,19 +88,19 @@ async def Liste_discussion(request, id: int):
         return Response({'error':'utilisateur introuvable'})
     
 
-@route_chat.get('discussion/{discussion_id}/', response={201: List[MessageOut], 400: dict})
+@route_chat.get('discussion/{discussion_id}/', response={200: List[MessageOut], 400: dict})
 async def discussion(request, discussion_id: int):
     try:
-        discussion = await Discussion.objects.aget(id=discussion_id)
-        print('discussion :', discussion)
+        discussion = await Discussion.objects.prefetch_related('user').aget(id=discussion_id)
+        participants = [u async for u in discussion.user.all()] #au cas jaurai besoin des participants
         
-        msg_discussion = await sync_to_async(list)(Message.objects.filter(
-            discussion=discussion
-        ).values('texte'))
-
-        print('resultat :', msg_discussion)
-        return 201, msg_discussion
-    
+        messages = Message.objects.filter(
+            discussion=discussion_id,
+        ).select_related('sender')
+        liste_message = [msg async for msg in messages]
+  
+        return 200, liste_message
+        
     except Discussion.DoesNotExist:
         return 400, {'error':'discussion introuvable'}
 
@@ -116,3 +116,6 @@ async def trouver_discussion(request, user_id: int, user_id2: int):
     
     except (User.DoesNotExist, Discussion.DoesNotExist):
         return 400, {'error': 'discussion introuvable'}
+
+
+

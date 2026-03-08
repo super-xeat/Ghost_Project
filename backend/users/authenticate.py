@@ -12,6 +12,7 @@ class AuthCookies(APIKeyCookie):
     async def authenticate(self, request, key):
         if not key:
             return None
+        print('key :', key)
         try:
             decode = jwt.decode(
                 key,
@@ -19,6 +20,7 @@ class AuthCookies(APIKeyCookie):
                 algorithms=['HS256']
             )
             user = await User.objects.aget(id=decode['user_id'])
+            print('user cookie :', user)
             return user
         except (jwt.InvalidTokenError, User.DoesNotExist):
             return None

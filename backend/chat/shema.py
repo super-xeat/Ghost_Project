@@ -11,12 +11,14 @@ class MessageIn(Schema):
     user: Optional[int] = None 
     texte: Optional[str] = None
 
+
 class UserInfoSchema(Schema):
     id: int
     username: str
 
 
 class MessageOut(Schema):
+    sender: UserInfoSchema # <=== !!!!
     texte: Optional[str]
     
 
@@ -29,3 +31,11 @@ class DiscussionOut(Schema):
     id: int
     user: List[int]
     date: datetime
+
+
+#exercice
+
+class Messageout(Schema):
+    user_id : int
+    texte: str
+

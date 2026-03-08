@@ -10,6 +10,7 @@ export default function Navbar() {
 
     const {user, Logout} = useAuth()
     const [anchor, setanchor] = useState<null | HTMLElement>(null)
+    
 
     const handleopen = (event: React.MouseEvent<HTMLElement>) => {
         setanchor(event.currentTarget)
@@ -20,75 +21,131 @@ export default function Navbar() {
     }
 
     return(
-        <Box sx={{
-            position: 'fixed',
-            backgroundColor: "black",
-            display: 'flex',
-            flexDirection: {xs: 'row', md:'column'},
-            width: { xs: '100%', md: '15rem' },
-            height: { xs: '10vh', md: '100vh' },
-            left: 0,
-            top: 0,
-            }}> 
+        <Box > 
             
-            {user ? (
-                <Typography sx={{
-                    color: 'whitesmoke'
-                }}>{user.username} : {user.Etat}</Typography>
-            ) : (
-                <Typography sx={{
-                    color: 'whitesmoke'
-                }}>aucun user en ligne
-                </Typography>
-            )}                  
-            <br />
-          
-            <IconButton onClick={handleopen} sx={{
-                order: {xs: 10, md: 0}
+            <Box sx={{
+                position: 'fixed',
+                backgroundColor: "#070707",
+                display: 'flex',
+                flexDirection: {xs: 'row', md:'column'},
+                alignItems: 'space',
+                width: { xs: '100%', md: '15rem' },
+                height: { xs: '10vh', md: '100vh' },
+                left: 0,
+                top: 0,
+                zIndex: 999,
+                gap: 1
             }}>
-                <AccountCircle sx={{
-                    color:'white',
-                    fontSize: { xs: '40px', md: '50px' }
-                }}/>
-            </IconButton>          
+                <Box>
+                    {user && user.Etat === 'en ligne' ? (
+                        <Typography sx={{
+                            color: 'whitesmoke'
+                        }}>{user.username} : {user.Etat}</Typography>
+                    ) : (
+                        <Typography sx={{
+                            color: 'whitesmoke',
+                            backgroundColor: '#000000'
+                        }}>aucun user en ligne
+                        </Typography>
+                    )}         
+                </Box>         
+                <br />
+          
+                <IconButton onClick={handleopen} sx={{
+                    order: {xs: 10, md: 0}
+                }}>
+                    <AccountCircle sx={{
+                        color:'white',
+                        fontSize: { xs: '40px', md: '50px' }
+                    }}/>
+                </IconButton>          
+                
+                <Box>
+                    <Recherche/>
+                </Box>
             
-            <Box>
-                <Recherche/>
+                <Box>
+                    <Link to={'/Accueil'} style={{
+                        textDecoration: 'none',
+                        color: 'white',
+                        fontSize: 20
+                    }}>
+                    Accueil
+                    </Link>          
+                </Box>
+                
+                
+
+                <Box>
+                    <Menu
+                        open={Boolean(anchor)}
+                        onClose={handleClose}
+                    >
+                    {user && user.Etat === 'en ligne' && (
+                        <Box>
+                            <MenuItem>
+                                <Link to={`/profile/${user?.id}`}>Profil</Link>
+                            </MenuItem>
+                            <MenuItem onClick={()=>Logout()}>Déconnexion</MenuItem>
+                        </Box>
+                    )}
+                    </Menu> 
+                </Box>  
             </Box>
-            
-            <Link to={'/Accueil'}>
-                Accueil
-            </Link>
-            <Link 
-                to={'/demande_amis'}
-                style={{ color: 'white', width: '10vh'}}
-                >
-                <Typography>Liste de demande</Typography>
-            </Link>  
 
-            <Menu
-                open={Boolean(anchor)}
-                onClose={handleClose}
-            >
-            {user && user.Etat === 'en ligne' ? (
-                <Box>
-                    <MenuItem>
-                        <Link to={`/profile/${user?.id}`}>Profil</Link>
-                    </MenuItem>
-                    <MenuItem onClick={()=>Logout()}>Déconnexion</MenuItem>
+            <Box sx={{
+                backgroundColor: '#000',
+                position: 'fixed',
+                zIndex: 999,
+                height: '10vh',
+                bottom: 0,
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'space-around',
+                alignItems: 'center',
+                
+            }}>
+                <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    paddingLeft: 5,
+                    width: '25%'
+                }}>
+                    <Link 
+                        to={'/demande_amis'}
+                        style={{ 
+                            color: 'white', 
+                            textDecoration: 'none',
+                            fontSize: 20,
+                            
+                        }}
+                        >
+                        <Typography>Liste de demande d'ami</Typography>
+                    </Link>  
                 </Box>
-            ) : (
-                <Box>
-                    <MenuItem>
-                        <Link to={'/register'}>Register</Link>
-                    </MenuItem>
 
-                    <MenuItem>
-                        <Link to={'/'}>Connexion</Link>
-                    </MenuItem>
+                <Typography variant='h2' sx={{
+                    color: 'white',
+                    border: '2px solid white',
+                    padding: 1,
+                
+                }}>+</Typography>
+
+                <Box sx={{
+                    width:'25%'
+                }}>
+                    <Link to={'/liste_ami'}
+                    style={{ 
+                            color: 'white', 
+                            textDecoration: 'none',
+                            fontSize: 20,
+                            
+                        }}
+                    >
+                            <Typography>Liste d'ami</Typography>
+                    </Link>
                 </Box>
-            )}
-            </Menu>          
+            </Box>
         </Box>
     )
 }

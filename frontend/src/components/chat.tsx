@@ -8,11 +8,20 @@ interface Mode {
     mode: 'discussion' | 'profile'
 }
 
+interface User {
+    username: string
+}
+
+interface Message {
+    sender: User
+    texte: string
+}
+
 export default function ChatRoom({mode}: Mode) {
 
     const {user, sendmessage, message } = useAuth()
     const [input, setinput] = useState('')
-    const [liste, setliste] = useState([])
+    const [liste, setliste] = useState<Message[]>([])
     const {id} = useParams<{id: string}>()
     
     console.log('id :', id)
@@ -28,7 +37,7 @@ export default function ChatRoom({mode}: Mode) {
             if(response.ok) {
                 const data = await response.json()
                 console.log('data_msg :', data)
-                setliste(data.msg_discussion)
+                setliste(data)
             }
         } catch(error) {
             console.error('error de fetch :', error)
@@ -58,25 +67,59 @@ export default function ChatRoom({mode}: Mode) {
     
     return (
         <Box sx={{
-            backgroundColor: '#999595ed',
+            backgroundColor: '#4b4b4bed',
             display: 'flex',
             flexDirection: 'column',
+            mt: '10vh',
             justifyContent: {xs: 'space-between'},
-            height: '100vh'
+            width: '100%'
         }}>
-            <List>
+            <List sx={{
+                color:'orange'
+            }}>
                 {liste && liste.map((char, index)=> (
-                    <ListItem key={index}>
-                        {char}
-                    </ListItem>
+                    <ListItem key={index} 
+                    sx={{ 
+                        flexDirection: 'column', 
+                        alignItems: 'flex-start'
+                       
+                    }}>
+                        
+                            {char.sender.username && char.sender.username === user?.username ? (
+                                <Box sx={{
+                                    marginLeft: '50%',
+                                    backgroundColor: '#1f1f1f',
+                                    paddingRight: 15,
+                                    paddingLeft: 2,
+                                    paddingTop: 1,
+                                    paddingBottom: 3,
+                                    borderRadius: 5,
+                                    border: '1px solid #fa9600'
+                                }}>
+                                    <Typography sx={{ fontWeight: 'bold' }}>{user.username}</Typography>                   
+                                    <Typography>{char.texte}</Typography>                  
+                                </Box>
+                            ) : (
+                                <Box sx={{
+                                    backgroundColor: '#1f1f1f',
+                                    paddingRight: 15,
+                                    paddingLeft: 2,
+                                    paddingTop: 1,
+                                    paddingBottom: 3,
+                                    borderRadius: 5,
+                                    border: '1px solid #fa9600'
+                                }}>
+                                    <Typography sx={{ fontWeight: 'bold' }}>{char.sender.username}</Typography>                   
+                                    <Typography>{char.texte}</Typography>                  
+                                </Box>
+                            )}
+                    </ListItem>    
                 ))}
             </List>
             <Box sx={{
                 display: 'flex',
                 alignItems: {xs: 'center'},    
                 justifyContent: {md: 'center'},   
-                height: '40%',
-                marginTop: 20
             }}>
                 <List>
                     {message.map((char, index) => (
@@ -85,14 +128,24 @@ export default function ChatRoom({mode}: Mode) {
                         flexDirection: 'column', 
                         alignItems: 'flex-start' 
                     }}>
-                        <Typography sx={{ fontWeight: 'bold' }}>
-                            {char.sender_name || user?.username}
-                        </Typography>
-                        <Typography>{char.texte}</Typography>
-                    </ListItem>
+                        
+                            {char.sender_name && user?.username ? (
+                                <Box sx={{
+                                    marginLeft: '50%'
+                                }}>
+                                    <Typography sx={{ fontWeight: 'bold' }}>{user.username}</Typography>                   
+                                    <Typography>{char.texte}</Typography>                  
+                                </Box>
+                            ) : (
+                                <Box>
+                                    <Typography sx={{ fontWeight: 'bold' }}>{char.sender_name}</Typography>                   
+                                    <Typography>{char.texte}</Typography>                  
+                                </Box>
+                            )}
+                    </ListItem>    
                     ))}
                 </List>
-            </Box>
+            </Box> 
             <Box
                 component="form"
                 onSubmit={handlesubmit}
@@ -100,10 +153,13 @@ export default function ChatRoom({mode}: Mode) {
                     p: 2, 
                     gap: 1,
                     borderTop: '1px solid #999',
-                    display: 'flex',
-                    justifyContent: {xs: 'center', md: 'flex-end'},
                     marginBottom: 2,
-
+                    position: 'fixed',
+                    display: 'flex',
+                    backgroundColor: '#333131',
+                    width: '100%',
+                    mt: '90%',
+                    justifyContent: 'center'
                 }}
                 >
                 <TextField

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { Typography, Box } from "@mui/material";
+import { Typography, Box, TextField } from "@mui/material";
 import { useAuth } from "../context/authcontext";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+
 
 
 interface Login {
@@ -31,31 +32,66 @@ export default function Login() {
         }
     }, [user])
     
+    
+
     return (
-        <Box sx={{backgroundColor: '#ada4a4', height:'100%', mt: 10}}>
-            <Typography variant="h4">page de connexion</Typography>
-            <form onSubmit={handleSubmit}>
-                <input 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    value={email} 
-                    type="email" 
-                    placeholder="Email"
-                    required
-                />
-                <input 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    value={password} 
-                    type="password" 
-                    placeholder="Mot de passe"
-                    className="border p-2 rounded"
-                    required
-                />
-                <button type="submit">
-                    se connecter
-                </button>
-                
-                </form>
-            <button onClick={Logout}>se deconnecter</button>
+        <Box sx={{
+            backgroundColor: '#ada4a4', 
+            height:'100vh',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems:'center'
+            }}>
+            <Box sx={{
+                backgroundColor: '#3a3939bc',
+                height:'50vh',
+                padding: '80px',
+                borderRadius: '20px'
+            }}>
+                <Typography variant="h4" 
+                sx={{
+                    mt: 10,
+                    mb: 5,
+                    color: '#fa9600'
+                }}
+                >page de connexion</Typography>
+                <Box 
+                    component={'form'}
+                    onSubmit={handleSubmit}
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column'
+                    }}
+                    >
+                    <TextField
+                        onChange={(e) => setEmail(e.target.value)} 
+                        value={email} 
+                        type="email" 
+                        placeholder="Email"
+                        required
+                        sx={{
+                            backgroundColor: 'whitesmoke'
+                        }}
+                    />
+                    <TextField
+                        onChange={(e) => setPassword(e.target.value)} 
+                        value={password} 
+                        type="password" 
+                        placeholder="Mot de passe"
+                        className="border p-2 rounded"
+                        required
+                        sx={{
+                            backgroundColor: 'whitesmoke'
+                        }}
+                    />
+                    <button type="submit">
+                        se connecter
+                    </button>
+                    
+                </Box>
+                <Typography>Vous n'avez pas encore de compte ?</Typography>
+                <button onClick={()=>navigate('/register')}>register</button>
+            </Box>
         </Box>
     );
 }

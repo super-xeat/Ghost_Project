@@ -30,7 +30,7 @@ export default function Discussion() {
         if (user && user_id) {
             Discussion(user_id)
         }
-    }, [])
+    }, [user])
 
     return(
         <Box>

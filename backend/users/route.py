@@ -1,7 +1,7 @@
 from ninja import Router, Form, File
 from ninja.files import UploadedFile
 from django.conf import settings
-from users.schema import RegisterInSchema, LoginIn, LoginOut, ProfileSchema
+from users.schema import RegisterInSchema, LoginIn, LoginOut, ProfileSchema, Userschema
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
@@ -35,14 +35,41 @@ if key:
 else:
     print('pas de clé')
 
-
+@ensure_csrf_cookie
 @route_auth.get('/csrf', auth=None)
-@ensure_csrf_cookie
-def get_csrf_token(request):
-    return HttpResponse('csrf créer')
+async def get_csrf_token(request):
+    response = NinjaResponse(
+        'csrf créer'
+    )
+    response.set_cookie('csrftoken')
+    return response
 
 
-@ensure_csrf_cookie
+@route_auth.get('verif_token/', response={200: dict})
+def Verif_token(request):
+    
+    user = request.auth  # ==> on met request.auth et pas request.user car
+    # il faut interceepter le middleware
+    # request.user = Le système automatique et "standard" de Django (Sessions).
+    # request.auth = Le système "sur mesure" de Django Ninja (ton JWT).
+    # la méthode authenticate est injecté dans request.auth
+
+    # Pourquoi request.user reste vide ?
+    # Django Ninja est conçu pour être léger et ne pas dépendre 
+    # obligatoirement du système de session de Django. 
+    # Par défaut, il ne remplit pas request.user 
+    # car il ne veut pas forcer l'utilisation des middlewares de Django (qui ralentissent un peu l'API).
+
+    # site officiel de Django Ninja:
+    # Documentation > Authentication > Custom authentication
+
+    print('user de verif_token:', user) 
+    return 200, {
+        'id': user.id,
+        'username': user.username
+        }
+
+
 @route_auth.post('register/', response={201: dict, 400: dict}, auth=None)
 async def register(request, data: RegisterInSchema=Form(...), avatar: Optional[UploadedFile]=File(None)):
     
@@ -60,13 +87,13 @@ async def register(request, data: RegisterInSchema=Form(...), avatar: Optional[U
         await user.asave()
 
     token = jwt.encode(
-                {
-                'user_id': user.id,
-                'exp': timezone.now() + timedelta(hours=24)
-                },
-                settings.SECRET_KEY,
-                algorithm='HS256'
-            )
+            {
+            'user_id': user.id,
+            'exp': timezone.now() + timedelta(hours=24)
+            },
+            settings.SECRET_KEY,
+            algorithm='HS256'
+        )
             
     context = { 'confirmation_url':f'http://localhost:8000/api/auth/confirm_email/{token}/'}
     message_html = await sync_to_async(render_to_string)('confirm_email.html', context)
@@ -111,7 +138,6 @@ async def confirmation_mail(request, token: str):
         return 400, {"error": "Lien invalide ou utilisateur introuvable."}
     
 
-@ensure_csrf_cookie
 @route_auth.post('login/', response={201: dict, 401: dict}, auth=None)
 async def login(request, data: LoginIn):
     try:
@@ -127,7 +153,7 @@ async def login(request, data: LoginIn):
     access_token = jwt.encode(
         {
             'user_id': authentification.id,
-            'exp': timezone.now() + timedelta(minutes=1),
+            'exp': timezone.now() + timedelta(minutes=5),
             'iat': timezone.now()
         },
         settings.SECRET_KEY,
@@ -169,10 +195,9 @@ async def login(request, data: LoginIn):
     return response
     
 
-@csrf_exempt
 @route_auth.post('logout/')
 async def Logout(request):
-    response = NinjaResponse({'message':'déconnexion'})
+    response = HttpResponse({'message':'déconnexion'})
     response.delete_cookie('access_token')
     response.delete_cookie('refresh_token')
     return response

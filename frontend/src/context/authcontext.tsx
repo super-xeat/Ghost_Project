@@ -2,11 +2,13 @@ import { Message } from "@mui/icons-material";
 import { createContext, useContext, useEffect, useState, useRef } from "react";
 import type { Dispatch } from "react";
 import type { SetStateAction } from "react";
+import getcookie from "./csrf";
+import { useNavigate } from "react-router-dom";
 
 
 export interface UserType {
-    id: number
-    username: string,
+    id?: number 
+    username?: string,
     Etat: 'en ligne' | 'hors-ligne',
     isAuth: boolean
 }
@@ -34,6 +36,7 @@ export default function Authcontext({ children }: { children: React.ReactNode })
 
     const [user, setuser] = useState<UserType | null>(null)
     const [message, setmessage] = useState<Message[]>([])
+    const navigate = useNavigate()
 
     useEffect(()=> {
         async function Csrf_token() {
@@ -54,6 +57,34 @@ export default function Authcontext({ children }: { children: React.ReactNode })
         Csrf_token()
     }, [])
 
+
+    useEffect(()=> {
+        async function Verif_token() {
+            try {
+                const response = await fetch('http://localhost:8000/api/auth/verif_token/', {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+
+                if (response.status === 200) {    
+                    const data = await response.json()
+                    console.log('vous etes reconnecté')
+                    setuser({
+                        id: data.id,
+                        username: data.username,
+                        Etat: 'en ligne',
+                        isAuth: true
+                    })
+                    console.log('user reconnecté :', user)
+                }
+            } catch(error) {
+                console.error('erreur :', error)
+            }
+        }
+        Verif_token()
+    }, [])
+
+    
     const Login = async (email: string, password: string) => {
         try {
             const response = await fetch('http://localhost:8000/api/auth/login/', {
@@ -89,12 +120,25 @@ export default function Authcontext({ children }: { children: React.ReactNode })
     }
 
     const Logout = async() => {
+        const csrf = getcookie('csrftoken') as string | undefined
+        console.log('csrf :', csrf)
+        if (!csrf) {
+            return
+        }
         const response = await fetch('http://localhost:8000/api/auth/logout/', {
             method: 'POST',
-            credentials: 'include'
+            credentials: 'include',
+            headers: {
+                'X-CSRFToken': csrf || '',
+            }
         })
         if (response.ok) {
             const data = await response.text()
+            setuser({
+                isAuth: false, 
+                Etat: 'hors-ligne'
+            })
+            navigate('')
             console.log('vous etes deconnecté', data)
 
         } else {

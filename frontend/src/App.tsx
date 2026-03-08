@@ -16,8 +16,8 @@ export default function App() {
 
   return (  
     <ThemeProvider theme={theme}>
-      <Authcontext>
-        <BrowserRouter>
+      <BrowserRouter>
+        <Authcontext>       
           <Navbar/>
               <Routes>
               <Route path='/' element={<Login/>}/>
@@ -27,9 +27,9 @@ export default function App() {
               <Route path='/chatroom1/profile/:id' element={<ChatRoom mode={'profile'}/>}/>
               <Route path='/demande_amis' element={<Demande_Amis />}/>
               <Route path='/Accueil' element={<Messagerie />}/>
-            </Routes>
-        </BrowserRouter>
-      </Authcontext>
+            </Routes>       
+        </Authcontext>
+      </BrowserRouter>
     </ThemeProvider>
   )
 }
