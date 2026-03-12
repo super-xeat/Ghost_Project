@@ -2,7 +2,7 @@ from ninja import Router
 from ninja.responses import Response 
 from chat.models import Demande_Ami, Discussion, Message
 from django.contrib.auth import get_user_model
-from chat.shema import DemandeOut, DiscussionOut, MessageOut
+from chat.shema import DemandeOut, DiscussionOut, MessageOut, UserInfoSchema
 from typing import List
 from asgiref.sync import sync_to_async
 
@@ -31,13 +31,12 @@ async def Liste_demande(request, id: int):
 
 @route_chat.put('accept/{id1}/{id2}/{q}/', response={200: dict, 404: dict})
 async def accept(request, id1: int, id2: int, q: str):
-    print('q: ', q)
     try:
         user = await User.objects.aget(id=id1)
         user2 = await User.objects.aget(id=id2)     
         demande = await Demande_Ami.objects.aget(user=id2, destinataire=id1)
         
-        if q.lower() == 'true':
+        if q.lower() == 'true':          
             await sync_to_async(user.liste_amis.add)(user2)
             await sync_to_async(user2.liste_amis.add)(user)
             await demande.adelete()
@@ -118,4 +117,40 @@ async def trouver_discussion(request, user_id: int, user_id2: int):
         return 400, {'error': 'discussion introuvable'}
 
 
+# Section créer une conversation groupé
+# Objectif : créer une conversation visible par tout les amis de ma liste_amis
 
+@route_chat.get('liste_amis/{user_id}/', response={200: List[UserInfoSchema], 404: dict})
+async def liste_ami(request, user_id: int):
+    try:
+        liste = await User.objects.prefetch_related('liste_amis').aget(id=user_id)
+        print('liste :', liste)
+        liste_ami = [ami async for ami in liste.liste_amis.all()]
+
+        return 200, liste_ami
+    except User.DoesNotExist:
+        return 404, {'error': 'user introuvable'}
+
+
+# créer un groupe
+@route_chat.post('creer_groupe/', response={200: dict, 404: dict})
+async def creer_groupe(request, data:List[int]):  
+    # transformation en chiffre 
+    print('data :', data)
+    if len(data) > 5:
+        return 404, {'error': 'nombre de user trop élevé'}
+    # si liste <= 5
+    else:
+        liste_user = []
+        # query_set = [15, 05, 30]
+        for char in data:
+            user = await User.objects.aget(id=int(char))
+            liste_user.append(user)
+
+        discussion = await Discussion.objects.acreate()
+        for user in liste_user:
+            await sync_to_async(discussion.user.add)(user)
+        
+        return 200, {'discussion_id': discussion.id }
+
+# !!!!!!!!!! crée une variable pour vérifier si discussion existe 

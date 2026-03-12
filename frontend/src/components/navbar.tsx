@@ -124,12 +124,16 @@ export default function Navbar() {
                     </Link>  
                 </Box>
 
-                <Typography variant='h2' sx={{
-                    color: 'white',
-                    border: '2px solid white',
-                    padding: 1,
-                
-                }}>+</Typography>
+                <Link to={`/Liste_amis/${user?.id}`}>
+                    <Button 
+                    sx={{
+                        color: 'white',
+                        border: '2px solid white',
+                        padding: 1,
+                    }}
+                    >+
+                    </Button>
+                </Link>
 
                 <Box sx={{
                     width:'25%'

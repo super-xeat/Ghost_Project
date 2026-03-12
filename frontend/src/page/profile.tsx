@@ -71,9 +71,9 @@ export default function Profile() {
                         <li key={index}>                          
                             <Button onClick={()=>supprimer(char.id)}>supprimer</Button>
                             <Recup_conv 
-                            name={char.username}
+                            name={char?.username}
                             id1={user?.id}
-                            id2={char.id}/>
+                            id2={char?.id}/>
                         </li>
                     ))}
                 </Box>

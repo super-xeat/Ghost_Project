@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import useToken from "../context/hook-refresh";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, ListItem, List } from "@mui/material";
 import { useAuth } from "../context/authcontext";
 import { Link } from "react-router-dom";
 
@@ -61,27 +61,42 @@ export default function Messagerie() {
 
     return(
         <Box sx={{
-            backgroundColor: '#999797ec',
+            backgroundColor: '#3c3b3bec',
             height: '100vh',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            flexDirection: 'column',
+            
         }}>
+            <Typography variant="h5" sx={{
+                    color: 'orange',
+                    mt:20
+            }}>Discussion en cours :</Typography>
             <Box sx={{
-                backgroundColor: '#f91717',
-
-            }}>
-                <Typography>Discussion en cours :</Typography>
-                {liste ? ( 
-                    liste.map((discussion, index)=> (
-                        <li key={index}>  
-                            <Link to={`/chatroom1/discussion/${discussion.id}`}>continuer la discussion avec {discussion?.user}</Link>
-                        </li>
-                    ))              
+                backgroundColor: '#181818',
+                width: '100%'
+            }}>              
+                <Box>                   
+                    {liste ? ( 
+                        liste.map((discussion, index)=> (
+                    <List>
+                        
+                        <ListItem key={index}>  
+                            <Link to={`/chatroom1/discussion/${discussion.id}`}>
+                                <Typography sx={{
+                                    textDecoration: 'none',
+                                    color: 'orange'
+                                }}>continuer la discussion avec {discussion?.user}</Typography>
+                            </Link>
+                        </ListItem>
+                    </List>
+                    ))                          
                 ) : (
                     <Typography>
                         pas de conversation en cours
                     </Typography>
                 )}
+                </Box> 
             </Box>
         </Box>
     )

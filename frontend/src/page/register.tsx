@@ -51,24 +51,45 @@ export default function Register() {
         <Box
             component="form"
             onSubmit={handlesubmit}
+            sx={{
+                backgroundColor: '#414040',
+                height: '100vh'
+            }}
         >
-            <Typography>Inscription</Typography>
-            <TextField label="email" type="email" value={email} onChange={(e) => setmail(e.target.value)}/>
-            <TextField label="nom utilisateur" type="text" value={username} onChange={(e) => setusername(e.target.value)}/>
-            <TextField label="password" type="password" value={password} onChange={(e) => setpassword(e.target.value)}/>
-            <TextField label="confirmpassword" type="password" value={confirmpassword} onChange={(e) => setconfirmpassword(e.target.value)}/>
+            <Box>
+                <Typography sx={{
+                    mt: 20
+                }}>Inscription</Typography>
+                <TextField label="email" type="email" value={email} 
+                sx={{
+                    backgroundColor: 'white'
+                }}
+                onChange={(e) => setmail(e.target.value)}/>
+                <TextField label="nom utilisateur" type="text" value={username}
+                sx={{
+                    backgroundColor: 'white'
+                }} 
+                onChange={(e) => setusername(e.target.value)}/>
+                <TextField label="password" type="password" value={password} sx={{
+                    backgroundColor: 'white'
+                }} onChange={(e) => setpassword(e.target.value)}/>
+                <TextField label="confirmpassword" type="password" sx={{
+                    backgroundColor: 'white'
+                }}
+                 value={confirmpassword} onChange={(e) => setconfirmpassword(e.target.value)}/>
 
-            <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
-                Choisir un avatar
-                <input type="file" hidden accept="image/*" onChange={handleimage}/>
-            </Button>
+                <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+                    Choisir un avatar
+                    <input type="file" hidden accept="image/*" onChange={handleimage}/>
+                </Button>
 
-            {file && (
-                <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-                    Fichier sélectionné : {file.name}
-                </Typography>
-            )}
-            <Button type="submit">envoyer</Button>
+                {file && (
+                    <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                        Fichier sélectionné : {file.name}
+                    </Typography>
+                )}
+                <Button type="submit">envoyer</Button>
+            </Box>
         </Box>
        )
 }

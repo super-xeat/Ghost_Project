@@ -15,7 +15,8 @@ export interface UserType {
 
 export interface Message {
     action: string;
-    destinataire_id: number; 
+    destinataire_id?: number; 
+    discussion_id?: number;
     user?: number | null; 
     sender_name?: string;   
     texte?: string;
@@ -41,7 +42,7 @@ export default function Authcontext({ children }: { children: React.ReactNode })
     useEffect(()=> {
         async function Csrf_token() {
             try {
-                const response = await fetch('http://localhost:8000/api/auth/csrf', {
+                const response = await fetch('http://localhost:8000/api/auth/csrf/', {
                     method:'GET',
                     credentials: 'include'
                 })
@@ -148,6 +149,7 @@ export default function Authcontext({ children }: { children: React.ReactNode })
     }
 
     const socketRef = useRef<WebSocket | null>(null)
+    // useref permet au WS de ne pas se re-render a chaque changement d'état, TRES IMPORTANT !!!!!! 
     useEffect(()=> {
         if (!user) return
 
@@ -164,6 +166,9 @@ export default function Authcontext({ children }: { children: React.ReactNode })
             } 
             if (data.action === 'message') {
                 setmessage(prev =>[...prev, data])
+            }
+            if (data.action === 'groupe') {
+                
             }
         }
         return ()=> {

@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/authcontext";
 import { Box, TextField, Button, List, ListItem, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 
 interface Mode {
-    mode: 'discussion' | 'profile'
+    mode: 'discussion' | 'profile' | 'groupe'
 }
 
 interface User {
@@ -21,12 +22,11 @@ export default function ChatRoom({mode}: Mode) {
 
     const {user, sendmessage, message } = useAuth()
     const [input, setinput] = useState('')
+
     const [liste, setliste] = useState<Message[]>([])
     const {id} = useParams<{id: string}>()
     
-    console.log('id :', id)
     
-
     const Recup_message = async(id: number) => {
         try {
             const response = await fetch(`http://localhost:8000/api/chat/discussion/${id}/`, {
@@ -45,25 +45,44 @@ export default function ChatRoom({mode}: Mode) {
     }
     
     useEffect(()=> {
-        if (id && mode === 'discussion') {
+        if (id && mode === 'discussion' || id &&  mode === 'groupe') {
             Recup_message(parseInt(id))
         }
+        // mode groupe aussi
+        
     }, [])
 
-    const handlesubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        const destinataire_id = id ? parseInt(id, 10) : null;
     
-        if (destinataire_id) {
-            sendmessage({
-            action: 'message',
-            destinataire_id: destinataire_id,
-            texte: input
-        })
-        }
-        setinput('')
+    const handlesubmit = (e: React.FormEvent) => {
+        if (mode === 'groupe') {
+            e.preventDefault()
+            const discussion_id = id ? parseInt(id, 10) : null;
+
+            if (discussion_id) {
+                sendmessage({
+                action: 'groupe',
+                // on passe id de la discussion car le groupe est deja créer
+                discussion_id: discussion_id,
+                texte: input
+            })
+            }
+            setinput('')
+        } else {
+            e.preventDefault()
+            const destinataire_id = id ? parseInt(id, 10) : null;
+        
+            if (destinataire_id) {
+                sendmessage({
+                action: 'message',
+                destinataire_id: destinataire_id,
+                texte: input
+            })
+            }
+            setinput('')
+            }
     }  
 
+    
     
     return (
         <Box sx={{

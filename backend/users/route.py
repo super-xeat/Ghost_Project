@@ -36,7 +36,7 @@ else:
     print('pas de clé')
 
 @ensure_csrf_cookie
-@route_auth.get('/csrf', auth=None)
+@route_auth.get('csrf/', auth=None)
 async def get_csrf_token(request):
     response = NinjaResponse(
         'csrf créer'
@@ -153,7 +153,7 @@ async def login(request, data: LoginIn):
     access_token = jwt.encode(
         {
             'user_id': authentification.id,
-            'exp': timezone.now() + timedelta(minutes=5),
+            'exp': timezone.now() + timedelta(minutes=50),
             'iat': timezone.now()
         },
         settings.SECRET_KEY,
@@ -270,8 +270,7 @@ async def Profile(request, id: int):
         user = await User.objects.prefetch_related('liste_amis').aget(id=id)
         # extraction de liste_amis dpeuis le cache avec async for
         amis = [ami async for ami in user.liste_amis.all()]
-
-        
+      
         response = {
             "id": user.id,
             "email": user.email,

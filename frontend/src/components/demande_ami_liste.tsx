@@ -12,7 +12,7 @@ export interface DemandeAmi {
 }
 
 export default function Demande_Amis() {
-    console.log('composant_ami')
+   
     const [liste, setliste] = useState<DemandeAmi[]>([])
     const {user} = useAuth()
     const user_id = user?.id 
@@ -42,26 +42,31 @@ export default function Demande_Amis() {
         }
     }, [user])
 
-    const Valider_supprimer = async(choix: boolean, item_id: number) => {
+    // ne pas oublier que la page se recharge a cause du form ==> React.MouseEvent
+    const Valider_supprimer = async(e: React.MouseEvent, choix: string, item_id: number) => {
+        e.preventDefault()
+
         if (!user_id) return
         try {
-            const response = await fetch(`http://localhost:8000/api/chat/accept/${user_id}/${item_id}/${String(choix)}/`, {
+            console.log('user_id :', user_id, 'user2_id :', item_id, 'choix :', choix)
+            const response = await fetch(`http://localhost:8000/api/chat/accept/${user_id}/${item_id}/${choix}/`, {
                 method: 'PUT',
                 headers: {'content-type': 'application/json'},
                 credentials: 'include'
             })
             if (response.status === 200) {
-                alert('action effectué')
-                Liste_ami(user_id)
+                alert('action effectué')       
             }
-
         } catch(error) {
             console.error('error :', error)
         }
     }
 
     return(
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ 
+            p: 2,
+            mt: 20
+             }}>
             <h3 style={{ marginBottom: '1rem' }}>Demandes d'amis reçues</h3>
             <ul style={{ listStyle: 'none', padding: 0 }}>
                 {liste && liste.length > 0 ? (
@@ -69,8 +74,8 @@ export default function Demande_Amis() {
                         <li key={demande.id}>
                             <form>
                                 <p>{demande.user.username} veut etre votre ami</p>
-                                <button onClick={()=>Valider_supprimer(true, demande.user.id)}>accepter</button>
-                                <button onClick={()=>Valider_supprimer(false, demande.user.id)}>refuser</button>
+                                <button onClick={(e)=>Valider_supprimer(e, 'true', demande.user.id!)}>accepter</button>
+                                <button onClick={(e)=>Valider_supprimer(e, 'false', demande.user.id!)}>refuser</button>
                             </form>
                         </li>
                     ))

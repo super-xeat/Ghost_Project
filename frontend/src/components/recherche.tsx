@@ -39,7 +39,7 @@ export default function Recherche() {
                         value={search} 
                         onChange={(e) => setsearch(e.target.value)}
                     />
-                    
+                    <Button type="submit">Envoyer</Button>
                 </form>
             </Box>
         </Box>
