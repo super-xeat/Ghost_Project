@@ -8,6 +8,7 @@ interface Recuperation {
     id2: number
     name: string
 }
+
 export default function Recup_conv({id1, name, id2}: Recuperation) {
 
     const [trouver, settrouver] = useState(false)
@@ -21,9 +22,10 @@ export default function Recup_conv({id1, name, id2}: Recuperation) {
                 method: 'GET',
                 credentials: 'include'
             })
-
+    
             if (response.status === 200) {
                 const data = await response.json()
+                console.log('data :', data)
                 settrouver(true)
                 setdiscussionID(data.id)
             }
@@ -38,6 +40,8 @@ export default function Recup_conv({id1, name, id2}: Recuperation) {
         setdiscussionID('')
     }, [id2, id1])
 
+    console.log('trouver :', trouver)
+    
     return(
         <Box>
             {trouver ? (

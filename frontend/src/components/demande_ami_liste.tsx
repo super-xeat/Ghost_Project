@@ -16,7 +16,7 @@ export default function Demande_Amis() {
     const [liste, setliste] = useState<DemandeAmi[]>([])
     const {user} = useAuth()
     const user_id = user?.id 
-    
+       
 
     const Liste_ami = async(user_id: number) => {
         if (!user_id) return
@@ -66,7 +66,7 @@ export default function Demande_Amis() {
         <Box sx={{ 
             p: 2,
             mt: 20
-             }}>
+            }}>
             <h3 style={{ marginBottom: '1rem' }}>Demandes d'amis reçues</h3>
             <ul style={{ listStyle: 'none', padding: 0 }}>
                 {liste && liste.length > 0 ? (

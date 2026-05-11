@@ -26,6 +26,8 @@ export default function ChatRoom({mode}: Mode) {
     const [liste, setliste] = useState<Message[]>([])
     const {id} = useParams<{id: string}>()
     
+    console.log("ID de l'URL:", id);
+    
     
     const Recup_message = async(id: number) => {
         try {
@@ -44,46 +46,34 @@ export default function ChatRoom({mode}: Mode) {
         }
     }
     
-    useEffect(()=> {
-        if (id && mode === 'discussion' || id &&  mode === 'groupe') {
-            Recup_message(parseInt(id))
+    useEffect(() => {
+    if (id) {
+         
+        sendmessage({
+            action: 'join_discussion', 
+            discussion_id: parseInt(id)
+        });  
+        Recup_message(parseInt(id));  
         }
-        // mode groupe aussi
-        
-    }, [])
+    }, [id]); 
 
     
-    const handlesubmit = (e: React.FormEvent) => {
-        if (mode === 'groupe') {
+    const handlesubmit = (e: React.FormEvent) => {       
             e.preventDefault()
             const discussion_id = id ? parseInt(id, 10) : null;
-
-            if (discussion_id) {
-                sendmessage({
-                action: 'groupe',
-                // on passe id de la discussion car le groupe est deja créer
-                discussion_id: discussion_id,
-                texte: input
-            })
-            }
-            setinput('')
-        } else {
-            e.preventDefault()
-            const destinataire_id = id ? parseInt(id, 10) : null;
-        
-            if (destinataire_id) {
+            console.log('discussion_id', discussion_id)
+            if (discussion_id) { 
                 sendmessage({
                 action: 'message',
-                destinataire_id: destinataire_id,
-                texte: input
+                // on passe id de la discussion car le groupe est deja créer
+                discussion_id: discussion_id,
+                texte: input 
             })
-            }
+            } 
             setinput('')
-            }
+        
     }  
-
-    
-    
+  
     return (
         <Box sx={{
             backgroundColor: '#4b4b4bed',

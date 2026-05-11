@@ -45,9 +45,15 @@ export default function Liste_ami() {
             if (response.status === 200) {
                 alert('nouveau groupe créer')
                 const data = await response.json()
-                setdiscussion_id(data)
+                setdiscussion_id(data)               
+            } 
+            if (response.status === 404) {
+                const data = await response.json()
+                console.error('error', data.error)
+                alert(data.error)
                 
             }
+
         } catch(error) {
             console.error('erreur de fetch')
         }

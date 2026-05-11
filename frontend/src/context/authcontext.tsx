@@ -4,6 +4,7 @@ import type { Dispatch } from "react";
 import type { SetStateAction } from "react";
 import getcookie from "./csrf";
 import { useNavigate } from "react-router-dom";
+import useToken from "./hook-refresh";
 
 
 export interface UserType {
@@ -37,7 +38,10 @@ export default function Authcontext({ children }: { children: React.ReactNode })
 
     const [user, setuser] = useState<UserType | null>(null)
     const [message, setmessage] = useState<Message[]>([])
+    const [activeChatId, setactiveChatId] = useState<Number>()
+    const {refresh} = useToken()
     const navigate = useNavigate()
+
 
     useEffect(()=> {
         async function Csrf_token() {
@@ -62,7 +66,7 @@ export default function Authcontext({ children }: { children: React.ReactNode })
     useEffect(()=> {
         async function Verif_token() {
             try {
-                const response = await fetch('http://localhost:8000/api/auth/verif_token/', {
+                let response = await fetch('http://localhost:8000/api/auth/verif_token/', {
                     method: 'GET',
                     credentials: 'include'
                 })
@@ -78,6 +82,28 @@ export default function Authcontext({ children }: { children: React.ReactNode })
                     })
                     console.log('user reconnecté :', user)
                 }
+
+                if (response.status === 401) {
+                    const token = await refresh()
+                    if (token) {
+                        response = await fetch('http://localhost:8000/api/auth/verif_token/', {
+                        method: 'GET',
+                        credentials: 'include'
+                    })
+                    }
+                    if (response.status === 200) {    
+                        const data = await response.json()
+                        console.log('vous etes reconnecté')
+                        setuser({
+                            id: data.id,
+                            username: data.username,
+                            Etat: 'en ligne',
+                            isAuth: true
+                        })
+                        console.log('user reconnecté :', user)
+                    }
+                }
+
             } catch(error) {
                 console.error('erreur :', error)
             }
@@ -160,30 +186,29 @@ export default function Authcontext({ children }: { children: React.ReactNode })
             const data = JSON.parse(event.data)
             // 6. Réception des message chez l'autre personne
             // a partir de là ... chemin inverse pour que je recoive MOI les message
-            
+            console.log('data recu :', data)
             if (data.action === 'demande_ami') {
                 alert('vous avez une demande ami')
             } 
             if (data.action === 'message') {
-                setmessage(prev =>[...prev, data])
-            }
-            if (data.action === 'groupe') {
-                
-            }
+                if (data.discussion_id === activeChatId) {
+                    setmessage(prev => [...prev, data]);
+                } else {
+                    console.log("Message reçu pour une autre discussion, on pourrait afficher une notification.");
+            }}           
         }
         return ()=> {
             ws.close()
             console.log('serveur éteint')
         }
-    }, [user])
+    }, [user?.id])
 
     const sendmessage = (message: Message) => {
         const ws = socketRef.current
         if (ws && ws.readyState === WebSocket.OPEN) {    
             ws.send(JSON.stringify(message))
-            setmessage(prev => [...prev, message])
             // 1. Envoi du message dans MON django
-        }
+        } 
     }
 
     return(
