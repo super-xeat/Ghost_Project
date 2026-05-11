@@ -110,9 +110,18 @@ async def trouver_discussion(request, user_id: int, user_id2: int):
     # filter, exclude ou order_by se contente de retourner un queryset
     # si on veut les manipuler il faut ajouter un all ou get ou first
     # Donc on prépare le queryset et on appelle ce qu'on veut de manière async
-        discussion = await Discussion.objects.filter(user=user_id).filter(user=user_id2).aget()
-        return 200, {'id': discussion.id}
-    
+        # On récupère directement le premier résultat
+        discussion = await Discussion.objects.filter(user=user_id).filter(user=user_id2 ).afirst() 
+        if discussion:
+            return 200, {
+                'id': discussion.id,
+                'trouvé': True
+            }
+        else:
+            return 400, {
+                'trouvé': False
+            }
+        
     except (User.DoesNotExist, Discussion.DoesNotExist):
         return 400, {'error': 'discussion introuvable'}
 
@@ -135,22 +144,32 @@ async def liste_ami(request, user_id: int):
 # créer un groupe
 @route_chat.post('creer_groupe/', response={200: dict, 404: dict})
 async def creer_groupe(request, data:List[int]):  
-    # transformation en chiffre 
+    
     print('data :', data)
     if len(data) > 5:
         return 404, {'error': 'nombre de user trop élevé'}
-    # si liste <= 5
+    if len(data) < 2:
+        return 404, {'error': 'nombre utilisateur insuffisant'}
     else:
         liste_user = []
-        # query_set = [15, 05, 30]
         for char in data:
             user = await User.objects.aget(id=int(char))
             liste_user.append(user)
 
-        discussion = await Discussion.objects.acreate()
-        for user in liste_user:
-            await sync_to_async(discussion.user.add)(user)
-        
-        return 200, {'discussion_id': discussion.id }
+        if len(liste_user) == 2:
+            if await Discussion.objects.filter(user=liste_user[0]).filter(user=liste_user[1]).aexists():
+                return 404, {'error': 'discussion entre ces deux utilisateur existe deja'}
+            else:
+                discussion = await Discussion.objects.acreate()
+                for user in liste_user:
+                    await sync_to_async(discussion.user.add)(user)
+                
+                return 200, {'discussion_id': discussion.id }
+        else:   
+            discussion = await Discussion.objects.acreate()
+            for user in liste_user:
+                await sync_to_async(discussion.user.add)(user)
+            
+            return 200, {'discussion_id': discussion.id }
 
 # !!!!!!!!!! crée une variable pour vérifier si discussion existe 

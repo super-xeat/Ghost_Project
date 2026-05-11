@@ -153,7 +153,7 @@ async def login(request, data: LoginIn):
     access_token = jwt.encode(
         {
             'user_id': authentification.id,
-            'exp': timezone.now() + timedelta(minutes=50),
+            'exp': timezone.now() + timedelta(minutes=3),
             'iat': timezone.now()
         },
         settings.SECRET_KEY,

@@ -7,9 +7,8 @@ from datetime import datetime
 
 class MessageIn(Schema):
     action: str
-    # Union car cela peut etre un seul id ou plusieurs (pour les message de groupe)
-    destinataire_id: Union[int, List[int]]
-    user: Optional[int] = None 
+    discussion_id: Optional[int] = None  
+    destinataire_id: Optional[int] = None 
     texte: Optional[str] = None
 
     
