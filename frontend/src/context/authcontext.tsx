@@ -30,6 +30,8 @@ export interface AuthContextType {
     sendmessage: (message: Message)=> void
     message: Message[]
     setmessage: Dispatch<SetStateAction<Message[]>>
+    activeChatId: number | undefined;
+    setactiveChatId: Dispatch<SetStateAction<number | undefined>>;
 }
 
 const ContextApp = createContext<AuthContextType | null>(null)
@@ -38,7 +40,14 @@ export default function Authcontext({ children }: { children: React.ReactNode })
 
     const [user, setuser] = useState<UserType | null>(null)
     const [message, setmessage] = useState<Message[]>([])
-    const [activeChatId, setactiveChatId] = useState<Number>()
+    const [activeChatId, setactiveChatId] = useState<number | undefined>()
+
+    const activeChatIdRef = useRef(activeChatId)
+
+    useEffect(() => {
+        activeChatIdRef.current = activeChatId
+    }, [activeChatId])
+
     const {refresh} = useToken()
     const navigate = useNavigate()
 
@@ -186,12 +195,12 @@ export default function Authcontext({ children }: { children: React.ReactNode })
             const data = JSON.parse(event.data)
             // 6. Réception des message chez l'autre personne
             // a partir de là ... chemin inverse pour que je recoive MOI les message
-            console.log('data recu :', data)
+           
             if (data.action === 'demande_ami') {
                 alert('vous avez une demande ami')
             } 
             if (data.action === 'message') {
-                if (data.discussion_id === activeChatId) {
+                if (data.discussion_id === activeChatIdRef.current) {
                     setmessage(prev => [...prev, data]);
                 } else {
                     console.log("Message reçu pour une autre discussion, on pourrait afficher une notification.");
@@ -212,7 +221,7 @@ export default function Authcontext({ children }: { children: React.ReactNode })
     }
 
     return(
-        <ContextApp.Provider value={{Login, user, Logout, sendmessage, message, setmessage}}>
+        <ContextApp.Provider value={{Login, user, Logout, sendmessage, message, setmessage, activeChatId, setactiveChatId}}>
             {children}
         </ContextApp.Provider>
     )

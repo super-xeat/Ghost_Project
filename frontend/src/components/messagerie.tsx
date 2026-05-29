@@ -13,7 +13,7 @@ interface discussion {
 export default function Messagerie() {
 
     const {refresh} = useToken()
-    const {user} = useAuth()
+    const {user, activeChatId, setactiveChatId} = useAuth()
     const [liste, setliste] = useState<discussion[]>([])
     const [loading, setLoading] = useState(false)
 
@@ -78,11 +78,11 @@ export default function Messagerie() {
             }}>              
                 <Box>                   
                     {liste ? ( 
-                        liste.map((discussion, index)=> (
+                        liste.map((discussion)=> (
                     <List>
                         
-                        <ListItem key={index}>  
-                            <Link to={`/chatroom1/discussion/${discussion.id}`}>
+                        <ListItem key={discussion.id}>  
+                            <Link to={`/chatroom1/discussion/${discussion.id}`} onClick={()=>setactiveChatId(discussion.id)}>
                                 <Typography sx={{
                                     textDecoration: 'none',
                                     color: 'orange'

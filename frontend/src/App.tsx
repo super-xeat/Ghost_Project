@@ -8,8 +8,7 @@ import Navbar from './components/navbar';
 import Demande_Amis from './components/demande_ami_liste';
 import Profile from './page/profile';
 import { ThemeProvider, createTheme } from '@mui/material/styles'
-import Liste_ami from './page/selection_ami_chat';
-
+import Liste_amis from './page/liste_amis';
 
 export default function App() {
   
@@ -29,7 +28,7 @@ export default function App() {
               <Route path='/chatroom1/groupe/:id' element={<ChatRoom mode={'groupe'}/>}/>
               <Route path='/demande_amis' element={<Demande_Amis />}/>
               <Route path='/Accueil' element={<Messagerie />}/>
-              <Route path='/Liste_amis/:id' element={<Liste_ami/>}/>
+              <Route path='/Liste_amis/:id' element={<Liste_amis/>}/>
             </Routes>       
         </Authcontext>
       </BrowserRouter>

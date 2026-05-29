@@ -64,7 +64,7 @@ class Messagerie(AsyncWebsocketConsumer):
         
             await self.channel_layer.group_add(
                 self.discussion,
-                self.channel_name
+                self.channel_name  
             )
 
         elif action == 'leave_discussion':
@@ -118,6 +118,7 @@ class Messagerie(AsyncWebsocketConsumer):
 
             groupe_name = f"discussion_{discussion.id}"
             print(f"Envoi vers le groupe : {groupe_name}")
+        
             await self.channel_layer.group_send(
                 # 3. jenvoi ce que l'ami a beesoin pour afficher le message
                 #    groupe_send => enveloppe (on jette l'enveloppe dans le tuyau)
@@ -133,8 +134,7 @@ class Messagerie(AsyncWebsocketConsumer):
             )
             
 ###############################################################################################
-
-                
+            
     async def Demander_ami(self, destinataire_id):
         demande = await Demande_Ami.objects.acreate(
             user=self.user,

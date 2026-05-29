@@ -4,6 +4,8 @@ import Recherche from "./recherche";
 import { AppBar, Toolbar, Typography, Button, Box, IconButton, Menu, MenuItem } from '@mui/material';
 import { useAuth } from "../context/authcontext";
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import { useEffect } from "react";
+import Liste_ami from "../page/liste_amis";
 
 
 export default function Navbar() {
@@ -19,6 +21,7 @@ export default function Navbar() {
     const handleClose = () => {
         setanchor(null)
     }
+
 
     return(
         <Box > 
@@ -124,21 +127,10 @@ export default function Navbar() {
                     </Link>  
                 </Box>
 
-                <Link to={`/Liste_amis/${user?.id}`}>
-                    <Button 
-                    sx={{
-                        color: 'white',
-                        border: '2px solid white',
-                        padding: 1,
-                    }}
-                    >+
-                    </Button>
-                </Link>
-
                 <Box sx={{
                     width:'25%'
                 }}>
-                    <Link to={'/liste_ami'}
+                    <Link to={`/Liste_amis/${user?.id}`}
                     style={{ 
                             color: 'white', 
                             textDecoration: 'none',
