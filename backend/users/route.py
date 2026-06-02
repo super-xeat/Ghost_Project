@@ -286,12 +286,3 @@ async def Profile(request, id: int):
         return 401, {'error': 'Utilisateur inconnu'}
 
 
-@route_auth.get('liste_ami/{id}/', response={200: dict, 401: dict})
-async def liste(request, id: int):
-
-    user = await User.objects.aget(id=id)
-    if user:
-        liste_ami = user.liste_amis
-        return liste_ami
-    
-    return 401, {'error': 'liste_ami introuvable'}

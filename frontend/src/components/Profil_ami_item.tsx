@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 
 
 interface Recuperation {
-    id1: number
-    id2: number
-    name: string
+    id1?: number
+    id2?: number
+    name?: string
 }
 
 export default function Recup_conv({id1, name, id2}: Recuperation) {
@@ -46,11 +46,11 @@ export default function Recup_conv({id1, name, id2}: Recuperation) {
         <Box>
             {trouver ? (
                 <Link to={`/chatroom1/discussion/${discussionID}`}>
-                    continuer conversation avec {name}
+                    <Typography color="orange">continuer conversation avec {name}</Typography>
                 </Link>
             ) : (
                 <Link to={`/chatroom1/profile/${id2}`}>
-                    commencer conversation avec {name}
+                    <Typography color="orange">commencer conversation avec {name}</Typography>
                 </Link>
             )}
         </Box>

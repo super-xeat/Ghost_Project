@@ -40,18 +40,18 @@ export default function Login() {
             height:'100vh',
             display: 'flex',
             justifyContent: 'center',
-            alignItems:'center'
+            alignItems:'center',
+            padding: 2
             }}>
             <Box sx={{
                 backgroundColor: '#3a3939bc',
                 height:'50vh',
                 padding: '80px',
-                borderRadius: '20px'
+                borderRadius: '20px',
+                               
             }}>
                 <Typography variant="h4" 
                 sx={{
-                    mt: 10,
-                    mb: 5,
                     color: '#fa9600'
                 }}
                 >page de connexion</Typography>

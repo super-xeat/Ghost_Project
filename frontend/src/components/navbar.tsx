@@ -12,7 +12,6 @@ export default function Navbar() {
 
     const {user, Logout} = useAuth()
     const [anchor, setanchor] = useState<null | HTMLElement>(null)
-    
 
     const handleopen = (event: React.MouseEvent<HTMLElement>) => {
         setanchor(event.currentTarget)
@@ -24,31 +23,34 @@ export default function Navbar() {
 
 
     return(
-        <Box > 
-            
+        <Box>            
             <Box sx={{
                 position: 'fixed',
-                backgroundColor: "#070707",
+                backgroundColor: "#000000",
                 display: 'flex',
                 flexDirection: {xs: 'row', md:'column'},
-                alignItems: 'space',
+                alignItems: 'center',
                 width: { xs: '100%', md: '15rem' },
                 height: { xs: '10vh', md: '100vh' },
                 left: 0,
                 top: 0,
                 zIndex: 999,
-                gap: 1
+                gap: 1,
+                pl: 1
             }}>
                 <Box>
                     {user && user.Etat === 'en ligne' ? (
                         <Typography sx={{
-                            color: 'whitesmoke'
-                        }}>{user.username} : {user.Etat}</Typography>
+                            color: 'orange'
+                        }}>
+                            {user.username} : {user.Etat}
+                        </Typography>
                     ) : (
                         <Typography sx={{
-                            color: 'whitesmoke',
-                            backgroundColor: '#000000'
-                        }}>aucun user en ligne
+                            color: 'orange',
+                            backgroundColor: '#000000',
+
+                        }}>hors ligne
                         </Typography>
                     )}         
                 </Box>         
@@ -63,14 +65,16 @@ export default function Navbar() {
                     }}/>
                 </IconButton>          
                 
-                <Box>
+                <Box sx={{
+
+                }}>
                     <Recherche/>
                 </Box>
             
                 <Box>
                     <Link to={'/Accueil'} style={{
                         textDecoration: 'none',
-                        color: 'white',
+                        color: 'orange',
                         fontSize: 20
                     }}>
                     Accueil
@@ -97,7 +101,7 @@ export default function Navbar() {
             </Box>
 
             <Box sx={{
-                backgroundColor: '#000',
+                backgroundColor: '#000000',
                 position: 'fixed',
                 zIndex: 999,
                 height: '10vh',
@@ -123,9 +127,22 @@ export default function Navbar() {
                             
                         }}
                         >
-                        <Typography>Liste de demande d'ami</Typography>
+                        <Typography sx={{
+                            color: 'orange'
+                        }}>Liste de demande d'ami</Typography>
                     </Link>  
                 </Box>
+
+                <Link to={`/Liste_ami/${user?.id}`}>
+                    <Button 
+                    sx={{
+                        color: 'white',
+                        border: '2px solid white',
+                        padding: 1,
+                    }}
+                    >+
+                    </Button>
+                </Link>
 
                 <Box sx={{
                     width:'25%'
@@ -138,7 +155,9 @@ export default function Navbar() {
                             
                         }}
                     >
-                            <Typography>Liste d'ami</Typography>
+                            <Typography sx={{
+                                color: 'orange'
+                            }}>Liste d'ami</Typography>
                     </Link>
                 </Box>
             </Box>

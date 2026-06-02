@@ -9,6 +9,8 @@ import Demande_Amis from './components/demande_ami_liste';
 import Profile from './page/profile';
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import Liste_amis from './page/liste_amis';
+import CssBaseline from '@mui/material/CssBaseline';
+import Liste_ami from './page/selection_ami_chat';
 
 export default function App() {
   
@@ -16,6 +18,7 @@ export default function App() {
 
   return (  
     <ThemeProvider theme={theme}>
+      <CssBaseline /> {/*  ==> supprime les marge */}
       <BrowserRouter>
         <Authcontext>       
           <Navbar/>
@@ -29,6 +32,7 @@ export default function App() {
               <Route path='/demande_amis' element={<Demande_Amis />}/>
               <Route path='/Accueil' element={<Messagerie />}/>
               <Route path='/Liste_amis/:id' element={<Liste_amis/>}/>
+              <Route path='/Liste_ami/:id' element={<Liste_ami/>}/>
             </Routes>       
         </Authcontext>
       </BrowserRouter>

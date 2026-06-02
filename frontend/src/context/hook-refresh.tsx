@@ -16,7 +16,7 @@ export default function useToken(): TokenHookResponse {
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include' 
             });
-
+            console.log('refresh réussi !')
             return response.ok
         } catch (error) {
             console.error("Erreur de rafraîchissement", error)

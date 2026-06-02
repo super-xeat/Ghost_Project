@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Box, TextField, Button } from "@mui/material";
 import { useAuth } from "../context/authcontext";
+import SearchIcon from '@mui/icons-material/Search';
 
 
 export default function Recherche() {
@@ -26,21 +27,31 @@ export default function Recherche() {
     return(
         <Box>
             <Box sx={{ 
-                p: 3
+                p: 0
                 }}>
-                <form onSubmit={Envoyer_demande}>
+                <Box onSubmit={Envoyer_demande} component="form" sx={{
+                    display: 'flex',
+                    justifyContent: 'center'
+                }}>
                     <TextField 
-                    size="small"
+                        size="small"
                         sx={{
-                            backgroundColor: '#f6c582e9',
-                            border: '2px solid #565555e6',
-                            borderRadius: '15px'
+                            backgroundColor: '#4a4a4a47',
+                            border: '2px solid orange',
+                            borderRadius: '15px',
+                            width: '100%',
+                        
                         }}
                         value={search} 
                         onChange={(e) => setsearch(e.target.value)}
                     />
-                    <Button type="submit">Envoyer</Button>
-                </form>
+                    <Button type="submit" sx={{
+                        color: 'orange',
+                        p: 0
+                    }}>
+                        <SearchIcon/>
+                    </Button>
+                </Box>
             </Box>
         </Box>
     )
