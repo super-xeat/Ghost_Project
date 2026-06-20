@@ -1,7 +1,7 @@
 from ninja import Router, Form, File
 from ninja.files import UploadedFile
 from django.conf import settings
-from users.schema import RegisterInSchema, LoginIn, LoginOut, ProfileSchema, Userschema
+from users.schema import RegisterInSchema, LoginIn, LoginOut, ProfileSchema, Userschema, UpdateFormInputSchema
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
@@ -68,7 +68,7 @@ def Verif_token(request):
         'id': user.id,
         'username': user.username
         }
-
+  
 
 @route_auth.post('register/', response={201: dict, 400: dict}, auth=None)
 async def register(request, data: RegisterInSchema=Form(...), avatar: Optional[UploadedFile]=File(None)):
@@ -137,7 +137,7 @@ async def confirmation_mail(request, token: str):
     except (jwt.InvalidTokenError, User.DoesNotExist):
         return 400, {"error": "Lien invalide ou utilisateur introuvable."}
     
-
+@csrf_exempt
 @route_auth.post('login/', response={201: dict, 401: dict}, auth=None)
 async def login(request, data: LoginIn):
     try:
@@ -153,7 +153,7 @@ async def login(request, data: LoginIn):
     access_token = jwt.encode(
         {
             'user_id': authentification.id,
-            'exp': timezone.now() + timedelta(minutes=3),
+            'exp': timezone.now() + timedelta(minutes=10),
             'iat': timezone.now()
         },
         settings.SECRET_KEY,
@@ -269,20 +269,62 @@ async def Profile(request, id: int):
         # recuperation de user et préchargement de liste_ami
         user = await User.objects.prefetch_related('liste_amis').aget(id=id)
         # extraction de liste_amis dpeuis le cache avec async for
-        amis = [ami async for ami in user.liste_amis.all()]
-      
+
+        amis = []
+        async for ami in user.liste_amis.all():
+            amis.append({
+                "id": ami.id,
+                "username": ami.username,
+                "statut": ami.statut
+            })
+
+        print('ami statut :', amis)
         response = {
             "id": user.id,
             "email": user.email,
             "username": user.username,
             "statut": user.statut,
             "status_discussion": user.status_discussion,
-            "liste_amis": amis
+            "liste_amis": amis,
+            "avatar": user.avatar
         }
         
         return 200, response
     
     except User.DoesNotExist:
         return 401, {'error': 'Utilisateur inconnu'}
+
+
+@route_auth.put('modif_profil/{id}/', response={200: dict, 404: dict})
+async def modif_profil(request, id: int, data: UpdateFormInputSchema = Form(...), avatar: UploadedFile = File(None)):
+
+    try:
+        user = await User.objects.aget(id=id)
+
+        # exclude_unset transforme le shéma en vrai dictionnaire
+        # "exclude_unset=True" permet de ne récupérer QUE les champs envoyés par le Front-end
+        update_data = data.model_dump(exclude_unset=True)
+
+        if "username" in update_data:
+            user.username = update_data["username"]
+
+        if "statut" in update_data:
+            user.statut = update_data["statut"]
+
+        if "statut_discussion" in update_data:
+            user.statut_discussion = update_data["statut_discussion"]
+
+        if avatar:
+            user.avatar = avatar
+
+        if "liste_ami" in update_data:
+            user.liste_ami = update_data["liste_ami"]
+
+        await user.asave()
+
+        return 200, {"success": "modification réussi"}
+    
+    except User.DoesNotExist:
+        return 404, {"erreur": "utilisateur introuvable"}
 
 

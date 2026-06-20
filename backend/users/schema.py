@@ -2,7 +2,7 @@ from ninja import Schema, ModelSchema
 from pydantic import field_validator, model_validator, EmailStr, HttpUrl
 from django.contrib.auth import get_user_model
 from typing import List, Optional
-
+from ninja import File
 
 User = get_user_model()
 
@@ -57,9 +57,11 @@ class LoginOut(Schema):
     username: str
     success: str
   
+
 class Userschema(Schema):
     id: int
     username: str
+    statut: str
 
 
 class ProfileSchema(Schema):
@@ -69,5 +71,10 @@ class ProfileSchema(Schema):
     statut: str
     status_discussion: str
     liste_amis: List[Userschema] = []
+    avatar: Optional[str] = None
 
 
+class UpdateFormInputSchema(Schema):
+    username: Optional[str] = None
+    statut: Optional[str] = None
+    statut_discussion: Optional[str] = None

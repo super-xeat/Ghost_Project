@@ -4,8 +4,8 @@ from chat.models import Message
 
 class User(AbstractUser):
     STATUS_CHOICES = [
-        ('En ligne', 'en ligne'),
-        ('Hors ligne', 'hors ligne')
+        ('en_ligne', 'en ligne'),
+        ('hors_ligne', 'hors ligne')
     ]
  
     DISCUSSION_CHOICE = [
@@ -16,7 +16,7 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     username = models.CharField(max_length=20, unique=True)
 
-    statut = models.CharField(choices=STATUS_CHOICES, default='hors ligne')
+    statut = models.CharField(choices=STATUS_CHOICES, default='hors_ligne')
 
     status_discussion = models.CharField(choices=DISCUSSION_CHOICE, default='hote')
     liste_amis = models.ManyToManyField('self', blank=True)

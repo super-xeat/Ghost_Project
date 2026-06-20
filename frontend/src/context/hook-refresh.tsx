@@ -1,4 +1,6 @@
 import { useState } from "react";
+import getcookie from "./csrf";
+
 
 interface TokenHookResponse {
     refresh: () => Promise<boolean>;
@@ -7,13 +9,18 @@ interface TokenHookResponse {
 
 export default function useToken(): TokenHookResponse {
     const [loading, setLoading] = useState(false);
+    const csrf = getcookie('csrftoken')
 
+    
     async function refresh(): Promise<boolean> {
         setLoading(true);
         try {
             const response = await fetch('http://localhost:8000/api/auth/refresh/', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrf || '',
+                },
                 credentials: 'include' 
             });
             console.log('refresh réussi !')

@@ -43,9 +43,78 @@ class Messagerie(AsyncWebsocketConsumer):
                 self.channel_name
             )
             await self.accept()
+            
+            try:
+                user = await User.objects.aget(id=self.user.id)
+                if user:
+                    user.statut = "en_ligne"
+                    await user.asave(update_fields=["statut"])
+
+                    # attention : update_fields attend le nom de la colonne dune table
+
+            except User.DoesNotExist:
+                print('user introuvable dans le connect')
+                return 
+            
+            try:
+                user_ami = await User.objects.prefetch_related('liste_amis').aget(id=self.user.id)
+                statut_ami = []
+
+                async for ami in user_ami.liste_amis.all():
+                    statut_ami.append({
+                        "id": ami.id,
+                        "username": ami.username,
+                        "statut": ami.statut
+                    })
+
+            except User.DoesNotExist:
+                await self.send(text_data=json.dumps({'error': 'ami inexistant dans action changement statut'}))
+                return 
+            
+            for ami in statut_ami:
+                await self.channel_layer.group_send(
+                    f"user_{ami['id']}",
+                    {
+                        "type": "statut_ami",
+                        "user_id": self.user.id,
+                        "username": self.user.username,
+                        "statut": "en ligne"
+                    }
+                )
+                
+            if statut_ami:
+                await self.send(text_data=json.dumps({
+                    'liste_ami_statut': statut_ami
+                }))
+
     
     async def disconnect(self, code):
         if hasattr(self, 'user_group_name'):
+
+            try:
+                user = await User.objects.aget(id=self.user.id)
+                if user:
+                    user.statut = "hors_ligne"
+                    await user.asave(update_fields=["statut"])
+
+                liste_ami = await User.objects.prefetch_related('liste_amis').aget(id=self.user.id)
+
+                async for ami in liste_ami.liste_amis.all():
+                    await self.channel_layer.group_send(
+                        f"user_{ami['id']}",
+                        {
+                            "type": "statut_ami",
+                            "user_id": self.user.id,
+                            "username": self.user.username,
+                            "statut": "hors ligne"
+                        }
+                    )
+
+            except User.DoesNotExist:
+                print('user inconnu')
+            except Exception as e:
+                print('erreur au disconnect : ', e)
+
             await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
     
     # text_data ==> contenu du message lié a ws.send(JSON.stringify(message))
@@ -53,6 +122,7 @@ class Messagerie(AsyncWebsocketConsumer):
     # json.load ==> permet de transformer text_data en dico 
     async def receive(self, text_data = None, bytes_data = None):
         print("texte-data :", text_data)
+
         data_young = json.loads(text_data)
         data = MessageIn(**data_young)
         action = data.action
@@ -132,7 +202,9 @@ class Messagerie(AsyncWebsocketConsumer):
                     "discussion_id": discussion.id
                 }
             )
-            
+
+    
+
 ###############################################################################################
             
     async def Demander_ami(self, destinataire_id):
@@ -178,6 +250,15 @@ class Messagerie(AsyncWebsocketConsumer):
             "message": event["message"],
             "sender_id": event["sender_id"],
             "demande_id": event["demande_id"]
+        }))
+
+
+    async def statut_ami(self, event):
+        await self.send(text_data=json.dumps({
+            "action":"chargement_statut_ami",
+            "user_id": event["user_id"],
+            "username": event["username"],
+            "statut": event["statut"]
         }))
         
         

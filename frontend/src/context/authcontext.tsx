@@ -5,13 +5,22 @@ import type { SetStateAction } from "react";
 import getcookie from "./csrf";
 import { useNavigate } from "react-router-dom";
 import useToken from "./hook-refresh";
+import Liste_ami from "../page/liste_amis";
 
+
+export interface Statut_ami {
+    id?: number | null | undefined,
+    username?: string,
+    statut?: boolean
+}
 
 export interface UserType {
     id?: number 
     username?: string,
     Etat: 'en ligne' | 'hors-ligne',
-    isAuth: boolean
+    isAuth: boolean,
+    avatar?: string,
+    listeAmis?: Statut_ami[]
 }
 
 export interface Message {
@@ -41,7 +50,7 @@ export default function Authcontext({ children }: { children: React.ReactNode })
     const [user, setuser] = useState<UserType | null>(null)
     const [message, setmessage] = useState<Message[]>([])
     const [activeChatId, setactiveChatId] = useState<number | undefined>()
-
+    
     const activeChatIdRef = useRef(activeChatId)
 
     useEffect(() => {
@@ -50,6 +59,7 @@ export default function Authcontext({ children }: { children: React.ReactNode })
 
     const {refresh} = useToken()
     const navigate = useNavigate()
+
 
 
     useEffect(()=> {
@@ -108,6 +118,7 @@ export default function Authcontext({ children }: { children: React.ReactNode })
                             username: data.username,
                             Etat: 'en ligne',
                             isAuth: true
+                            
                         })
                         console.log('user reconnecté :', user)
                     }
@@ -144,8 +155,8 @@ export default function Authcontext({ children }: { children: React.ReactNode })
                     username: data.username,
                     Etat: 'en ligne',
                     isAuth: true
-                })              
-                console.log('Connexion réussie:', data.id, data.username, data.success);          
+                    
+                })                             
             } 
             if (response.status === 401) {
                 alert('erreur de mdp ou de mail')
@@ -158,9 +169,13 @@ export default function Authcontext({ children }: { children: React.ReactNode })
     const Logout = async() => {
         const csrf = getcookie('csrftoken') as string | undefined
         console.log('csrf :', csrf)
+
         if (!csrf) {
+            setuser(null)          
+            navigate('')
             return
-        }
+        }      
+        
         const response = await fetch('http://localhost:8000/api/auth/logout/', {
             method: 'POST',
             credentials: 'include',
@@ -168,18 +183,18 @@ export default function Authcontext({ children }: { children: React.ReactNode })
                 'X-CSRFToken': csrf || '',
             }
         })
+
         if (response.ok) {
             const data = await response.text()
-            setuser({
-                isAuth: false, 
-                Etat: 'hors-ligne'
-            })
+            setuser(null)          
             navigate('')
+            
+                    
             console.log('vous etes deconnecté', data)
 
         } else {
             const data = await response.text()
-            console.log('vous etes deconnecté', data)
+            console.log('serveur a refusé le logout', data)
         }
     }
 
@@ -210,7 +225,7 @@ export default function Authcontext({ children }: { children: React.ReactNode })
             ws.close()
             console.log('serveur éteint')
         }
-    }, [user?.id])
+    }, [user?.id]) 
 
     const sendmessage = (message: Message) => {
         const ws = socketRef.current
@@ -229,6 +244,10 @@ export default function Authcontext({ children }: { children: React.ReactNode })
 
 export const useAuth = () => {
     const context = useContext(ContextApp);
-    if (!context) throw new Error("Oubli du Provider !");
+    if (!context) {
+        return {} as any; 
+    }
+
     return context;
+    
 };

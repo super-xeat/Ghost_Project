@@ -10,7 +10,7 @@ import Liste_ami from "../page/liste_amis";
 
 export default function Navbar() {
 
-    const {user, Logout} = useAuth()
+    const {user, Logout} = useAuth() || {}
     const [anchor, setanchor] = useState<null | HTMLElement>(null)
 
     const handleopen = (event: React.MouseEvent<HTMLElement>) => {
