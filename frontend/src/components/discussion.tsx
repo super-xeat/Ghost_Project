@@ -59,7 +59,7 @@ export default function Discussion() {
             Discussion(user_id)
         }
     }, [user])
-
+  
     return(
         <Box>
             <List>

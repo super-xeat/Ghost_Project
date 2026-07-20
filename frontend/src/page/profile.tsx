@@ -31,7 +31,7 @@ export default function Profile() {
         if (!user) {
             console.log('user inconnu dans le composant profile')
             return 
-        }
+        } 
         try {
             let response = await fetch(`http://localhost:8000/api/auth/profile/${userId}/`, {
                 method: 'GET',
@@ -46,8 +46,10 @@ export default function Profile() {
                         credentials: 'include'
                     })
                     const data = await response.json()
-                    console.log('data :', data)
+                    console.log('data profile:', data) 
+
                     setliste(data.liste_amis)
+                    console.log('liste :', data.liste_amis)
                 } else {
                     console.log('error')
                 }
@@ -203,6 +205,8 @@ export default function Profile() {
                             <Button onClick={()=>Modifname()}>modifier votre pseudo</Button>
                         </Box>
                         )                      
+
+                        
                     }
                     
                     {user?.id && modifimage ?
@@ -247,12 +251,14 @@ export default function Profile() {
                         <ListItem key={index} sx={{
                             color: 'orange'
                         }}>                          
-                            
+                               
                             <Recup_conv 
                             name={char?.username}
                             id1={user?.id}
-                            id2={char?.id}/>
-                        </ListItem>
+                            ami={char}
+                            mode={'profil'}
+                            />
+                        </ListItem>  
                     ))}
                 </List>
 

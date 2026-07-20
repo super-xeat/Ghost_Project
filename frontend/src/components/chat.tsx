@@ -18,19 +18,19 @@ interface HistoryMessage {
 
 export default function ChatRoom({ mode }: Mode) {
     const { user, sendmessage, message, setmessage, setactiveChatId } = useAuth();
-    const [input, setinput] = useState('');
-    const [liste, setliste] = useState<HistoryMessage[]>([]);
+    const [input, setinput] = useState('')
+    const [liste, setliste] = useState<HistoryMessage[]>([])
     
-    const { id } = useParams<{ id: string }>();
+    const { id } = useParams<{ id: string }>()   // id de la discussion
     const currentDiscussionId = id ? parseInt(id, 10) : null;
 
     const Recup_message = async (discussionId: number) => {
         try {
-            const response = await fetch(`http://localhost:8000/api/chat/discussion/${discussionId}/`, {
+            const response = await fetch(`http://localhost:8000/api/chat/discussion/${discussionId}/`, { 
                 method: 'GET',
                 credentials: 'include'
             });
-            if (response.ok) {
+            if (response.ok) {  
                 const data = await response.json();
                 setliste(data);
             }
@@ -41,18 +41,13 @@ export default function ChatRoom({ mode }: Mode) {
     
     useEffect(() => {
         if (currentDiscussionId) {
-            // 1. On informe le Contexte/WebSocket du salon actuellement ouvert
             setactiveChatId(currentDiscussionId);
-            
-            // 2. On rejoint le salon côté WS et on charge l'historique API
             sendmessage({
                 action: 'join_discussion', 
                 discussion_id: currentDiscussionId
             });  
             Recup_message(currentDiscussionId);  
         }
-
-        // 3. NETTOYAGE : Quand on quitte le salon, on vide l'état temps réel
         return () => {
             setactiveChatId(undefined);
             setmessage([]); 
@@ -71,7 +66,6 @@ export default function ChatRoom({ mode }: Mode) {
         setinput('');
     };  
 
-    // 4. FILTRAGE : On isole uniquement les messages temps réel de CE salon
     const messagesTempsReelFiltres = message.filter(
         (msg) => msg.discussion_id === currentDiscussionId
     );

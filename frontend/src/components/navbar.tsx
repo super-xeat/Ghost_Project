@@ -6,13 +6,18 @@ import { useAuth } from "../context/authcontext";
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useEffect } from "react";
 import Liste_ami from "../page/liste_amis";
+import { useLocation } from "react-router-dom";
 
 
 export default function Navbar() {
 
+    const location = useLocation()
     const {user, Logout} = useAuth() || {}
     const [anchor, setanchor] = useState<null | HTMLElement>(null)
 
+    if (location.pathname === '/') {
+        return null
+    }
     const handleopen = (event: React.MouseEvent<HTMLElement>) => {
         setanchor(event.currentTarget)
     }

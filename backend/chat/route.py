@@ -104,7 +104,7 @@ async def discussion(request, discussion_id: int):
         return 400, {'error':'discussion introuvable'}
 
 
-@route_chat.get('trouver_discussion/{user_id}/{user_id2}/', response={200:dict, 400: dict})
+@route_chat.get('trouver_discussion/{user_id}/{user_id2}/', response={200:dict, 404: dict})
 async def trouver_discussion(request, user_id: int, user_id2: int):
     try:
     # filter, exclude ou order_by se contente de retourner un queryset
@@ -115,15 +115,24 @@ async def trouver_discussion(request, user_id: int, user_id2: int):
         if discussion:
             return 200, {
                 'id': discussion.id,
-                'trouvé': True
+                'trouvé': True,
+                'message': 'discussion trouver'
             }
         else:
-            return 400, {
-                'trouvé': False
+            discussion = await Discussion.objects.acreate()
+            user1 = await User.objects.aget(id=user_id)
+            user2 = await User.objects.aget(id=user_id2)
+
+            await sync_to_async(discussion.user.add)(user1)
+            await sync_to_async(discussion.user.add)(user2)
+            return 404, {
+                'id': discussion.id,
+                'trouvé': False,
+                'message': 'nouvelle discussion créer'
             }
         
     except (User.DoesNotExist, Discussion.DoesNotExist):
-        return 400, {'error': 'discussion introuvable'}
+        return 404, {'error': 'discussion introuvable'}
 
 
 # Section créer une conversation groupé
@@ -175,14 +184,13 @@ async def creer_groupe(request, data:List[int]):
 # !!!!!!!!!! crée une variable pour vérifier si discussion existe 
 
 
-@route_chat.put('retirer_discussion/{discussion_id}/{userid}/', response={200: dict, 404: dict})
-async def retirer(request, discussion_id: int, userid: int):
+@route_chat.delete('retirer_discussion/{discussion_id}/', response={200: dict, 404: dict})
+async def retirer(request, discussion_id: int):
     try:
         discussion = await Discussion.objects.aget(id=discussion_id)
-        user = await User.objects.aget(id=userid)
-        await sync_to_async(discussion.user.remove)(user)
+        await discussion.adelete()
 
-        return 200, {'success': 'utilisateur supprimé de la liste'}
+        return 200, {'success': 'discussion supprimé'}
     
     except Discussion.DoesNotExist:
         return 404, {'erreur': 'discussion introuvable'}
@@ -191,4 +199,12 @@ async def retirer(request, discussion_id: int, userid: int):
         return 404, {'erreur': 'user introuvable'}
 
 
+@route_chat.post('trouver_id/{nameUser}/', response={200: dict, 404: dict})
+async def trouver_user(request, nameUser: str):
+
+    try:       
+        user = await User.objects.aget(username=nameUser)
+        return 200, {'id': user.id }
     
+    except User.DoesNotExist:
+        return 404, {'erreur': 'user introuvable'}

@@ -22,7 +22,7 @@ export default function App() {
       <BrowserRouter>
         <Authcontext>       
           <Navbar/>
-              <Routes>
+            <Routes>
               <Route path='/' element={<Login/>}/>
               <Route path='/profile/:id' element={<Profile/>}/>
               <Route path='/register' element={<Register />}/>

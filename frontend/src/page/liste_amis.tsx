@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, List, ListItem, Button } from "@mui/material";
+import { Box, Typography, List, ListItem, Button, Link } from "@mui/material";
 import { useAuth } from "../context/authcontext";
 import type { Statut_ami } from "../context/authcontext";
+import Recup_conv from "../components/Profil_ami_item";
+
+
 
 
 export default function Liste_ami() {
@@ -9,7 +12,6 @@ export default function Liste_ami() {
     const {user} = useAuth()
 
     const [listeAmis, setlisteAmis] = useState<Statut_ami[]>([])
-    
     const [supp, setsupp] = useState<Statut_ami | null>(null)
 
     const user_id = user?.id 
@@ -35,11 +37,11 @@ export default function Liste_ami() {
         Liste_amis()       
     }, [user_id])
     
-    
+
+
     const supprimer = async( id2: number) => {
         if (!user?.id) return
-
-    
+   
             try {
                 const response = await fetch(`http://localhost:8000/api/chat/supprimer_ami/${user.id}/${id2}/`, {
                     method: 'DELETE',
@@ -97,13 +99,17 @@ export default function Liste_ami() {
                     <ListItem key={index} sx={{
                         display: 'flex',
                         flexDirection: 'column',
-                       
+                        backgroundColor: '#28272772',
+                        border: '2px solid #fdf9f9b3',
+                        borderLeft: 'none',
+                        borderRight: 'none',
+                        
                     }}> {supp?.id === amis.id && (
                             <Box sx={{ backgroundColor: 'rgba(250, 86, 10, 0.1)', p: 2, borderRadius: '8px', mb: 2, border: '1px solid #fa560aec' }}>
                                 <Typography sx={{ color: 'white' }}>
                                     Êtes-vous sûr de vouloir supprimer {amis?.username} de votre liste d'amis ?
                                 </Typography>
-                                <Button sx={{ color: '#fa560aec' }} onClick={() => supprimer(amis.id)}>YES</Button>
+                                <Button sx={{ color: '#fa560aec' }} onClick={() => supprimer(amis?.id)}>YES</Button>
                                 <Button sx={{ color: 'white' }} onClick={() => setsupp(null)}>NO</Button>
                             </Box>
                         )}
@@ -111,22 +117,22 @@ export default function Liste_ami() {
                         <Box sx={{
                             display: 'flex',
                             flexDirection: 'row',
-                            justifyContent: 'space-between'
-                            
+                            alignItems: 'center',   
+                            justifyContent: 'space-between',
+                            width: '100%',
+                            px: 3
                         }}>
                             
-                            <Typography sx={{
-                                color: 'white',
-                                fontSize: '20px'
-                            }}>{amis?.username}</Typography>
-                            <br />
-                            <Typography sx={{
-                                color: 'white',
-                                fontSize: '20px',
-                                marginLeft: '2rem'
-                            }}>{amis?.statut}</Typography>
+                            <Recup_conv 
+                                id1={user_id}
+                                ami={amis}
+                                name={amis.username}
+                                mode={'liste_ami'}
+                            />
 
-                            <Button onClick={()=> setsupp(amis)}>supprimer</Button>
+                            <Button sx={{ color: '#fa560aec' }} onClick={() => setAmiASupprimer(amis)}>
+                                supprimer
+                            </Button>
                         </Box>
                     </ListItem>
                 )}

@@ -11,15 +11,15 @@ import Liste_ami from "../page/liste_amis";
 export interface Statut_ami {
     id?: number | null | undefined,
     username?: string,
-    statut?: boolean
+    statut?: 'en ligne' | 'hors-ligne',
+    avatar?: string
 }
 
 export interface UserType {
     id?: number 
     username?: string,
-    Etat: 'en ligne' | 'hors-ligne',
-    isAuth: boolean,
-    avatar?: string,
+    Etat?: 'en ligne' | 'hors-ligne',
+    isAuth?: boolean,   
     listeAmis?: Statut_ami[]
 }
 

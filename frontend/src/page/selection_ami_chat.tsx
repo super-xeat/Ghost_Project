@@ -34,7 +34,6 @@ export default function Liste_ami() {
 
     async function creer_groupe(ajoutID: number[]) {
         try {
-            // mauvais ... mettre la liste dans un body JSON.stringfy
             console.log('ajoutid :', ajoutID)
             const response = await fetch(`http://localhost:8000/api/chat/creer_groupe/`, {
                 method: 'POST',
